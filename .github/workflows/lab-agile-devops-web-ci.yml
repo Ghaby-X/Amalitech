@@ -1,0 +1,51 @@
+name: Web CI
+
+on:
+  push:
+    branches: [lab-agile-devops]
+    paths:
+      - 'agile-devops-lab/web/**'
+  pull_request:
+    branches: [lab-agile-devops]
+    paths:
+      - 'agile-devops-lab/web/**'
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test & Build
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: agile-devops-lab/web
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Debug - show repo structure
+        run: |
+          echo "Branch: $GITHUB_REF"
+          echo "Head ref: $GITHUB_HEAD_REF"
+          echo "Current directory: $(pwd)"
+          echo "Repo root contents:"
+          ls -la $GITHUB_WORKSPACE
+          echo "agile-devops-lab contents:"
+          ls -la $GITHUB_WORKSPACE/agile-devops-lab || echo "agile-devops-lab NOT FOUND"
+          echo "web contents:"
+          ls -la $GITHUB_WORKSPACE/agile-devops-lab/web || echo "web NOT FOUND"
+        working-directory: ${{ github.workspace }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Build
+        run: npm run build
