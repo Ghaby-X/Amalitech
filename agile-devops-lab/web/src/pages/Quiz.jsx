@@ -11,8 +11,8 @@ function Quiz() {
 
   const currentQuestion = questions[currentIndex];
 
-  function handleSubmit(selectedIndex) {
-    console.log('Submitted index:', selectedIndex);
+  function handleSubmit(selectedIndex, isCorrect) {
+    console.log('Answer submitted — correct:', isCorrect);
   }
 
   return (
