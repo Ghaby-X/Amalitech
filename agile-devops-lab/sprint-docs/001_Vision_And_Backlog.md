@@ -72,3 +72,15 @@ To make learning fun, accessible, and engaging by providing a simple flashcard q
 **Note**:
 - (SP-X) corresponds to the story point value. X is the actual value assigned
 - Priority scores range from 0 to a 100, with a 100 being the highest priority
+
+---
+
+### Definition of Done
+
+A user story is considered done when all of the following are true:
+- All acceptance criteria for the story are met
+- The feature renders correctly in the browser without console errors
+- At least one unit test covers the core logic of the story
+- Code is committed with a meaningful commit message
+- The CI pipeline passes (build + tests)
+- The feature is usable without breaking any previously delivered story
