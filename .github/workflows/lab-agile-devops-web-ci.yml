@@ -23,6 +23,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Debug - show repo structure
+        run: |
+          echo "Branch: $GITHUB_REF"
+          echo "Head ref: $GITHUB_HEAD_REF"
+          echo "Current directory: $(pwd)"
+          echo "Repo root contents:"
+          ls -la $GITHUB_WORKSPACE
+          echo "agile-devops-lab contents:"
+          ls -la $GITHUB_WORKSPACE/agile-devops-lab || echo "agile-devops-lab NOT FOUND"
+          echo "web contents:"
+          ls -la $GITHUB_WORKSPACE/agile-devops-lab/web || echo "web NOT FOUND"
+        working-directory: ${{ github.workspace }}
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
