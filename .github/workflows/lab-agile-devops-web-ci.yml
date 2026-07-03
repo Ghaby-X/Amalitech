@@ -4,11 +4,12 @@ on:
   push:
     branches: [lab-agile-devops]
     paths:
-      - 'agile-devops-lab'
+      - 'agile-devops-lab/web/**'
   pull_request:
     branches: [lab-agile-devops]
     paths:
-      - 'agile-devops-lab'
+      - 'agile-devops-lab/web/**'
+  workflow_dispatch:
 
 jobs:
   test:
