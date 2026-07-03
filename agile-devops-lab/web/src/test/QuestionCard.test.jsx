@@ -57,7 +57,7 @@ describe('QuestionCard — multiple choice', () => {
     render(<QuestionCard question={mcQuestion} onSubmit={onSubmit} />);
     await user.click(screen.getByText('Kwame Nkrumah', { exact: false }));
     await user.click(screen.getByRole('button', { name: /submit/i }));
-    expect(onSubmit).toHaveBeenCalledWith(2);
+    expect(onSubmit).toHaveBeenCalledWith(2, true);
   });
 
   it('only allows one option to be selected at a time', async () => {
@@ -67,8 +67,8 @@ describe('QuestionCard — multiple choice', () => {
     await user.click(screen.getByText('Kofi Annan', { exact: false }));
     await user.click(screen.getByText('Kwame Nkrumah', { exact: false }));
     await user.click(screen.getByRole('button', { name: /submit/i }));
-    // Last selection wins — should submit index 2, not 0
-    expect(onSubmit).toHaveBeenCalledWith(2);
+    // Last selection wins — should submit index 2 (correct)
+    expect(onSubmit).toHaveBeenCalledWith(2, true);
     expect(onSubmit).toHaveBeenCalledTimes(1);
   });
 });
@@ -96,6 +96,45 @@ describe('QuestionCard — true/false', () => {
     render(<QuestionCard question={tfQuestion} onSubmit={onSubmit} />);
     await user.click(screen.getByText('True'));
     await user.click(screen.getByRole('button', { name: /submit/i }));
-    expect(onSubmit).toHaveBeenCalledWith(0);
+    expect(onSubmit).toHaveBeenCalledWith(0, true);
+  });
+});
+
+describe('QuestionCard — instant feedback', () => {
+  it('hides submit button after submission', async () => {
+    const user = userEvent.setup();
+    render(<QuestionCard question={mcQuestion} onSubmit={vi.fn()} />);
+    await user.click(screen.getByText('Kwame Nkrumah', { exact: false }));
+    await user.click(screen.getByRole('button', { name: /submit/i }));
+    expect(screen.queryByRole('button', { name: /submit/i })).not.toBeInTheDocument();
+  });
+
+  it('calls onSubmit with true when correct answer is selected', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    render(<QuestionCard question={mcQuestion} onSubmit={onSubmit} />);
+    await user.click(screen.getByText('Kwame Nkrumah', { exact: false }));
+    await user.click(screen.getByRole('button', { name: /submit/i }));
+    expect(onSubmit).toHaveBeenCalledWith(2, true);
+  });
+
+  it('calls onSubmit with false when wrong answer is selected', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    render(<QuestionCard question={mcQuestion} onSubmit={onSubmit} />);
+    await user.click(screen.getByText('Kofi Annan', { exact: false }));
+    await user.click(screen.getByRole('button', { name: /submit/i }));
+    expect(onSubmit).toHaveBeenCalledWith(0, false);
+  });
+
+  it('does not allow changing selection after submission', async () => {
+    const user = userEvent.setup();
+    const onSubmit = vi.fn();
+    render(<QuestionCard question={mcQuestion} onSubmit={onSubmit} />);
+    await user.click(screen.getByText('Kofi Annan', { exact: false }));
+    await user.click(screen.getByRole('button', { name: /submit/i }));
+    // Try clicking another option after submit — onSubmit should still only be called once
+    await user.click(screen.getByText('Kwame Nkrumah', { exact: false }));
+    expect(onSubmit).toHaveBeenCalledTimes(1);
   });
 });
