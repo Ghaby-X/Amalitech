@@ -25,7 +25,44 @@ function Quiz() {
     );
   }
 
-  const { questions, currentIndex, answers } = session;
+  const { questions, currentIndex, answers, finished } = session;
+
+  function handleFinish() {
+    finishQuiz();
+  }
+
+  function handleStartNewQuiz() {
+    startNewQuiz();
+    setAnswered(false);
+  }
+
+  if (finished) {
+    return (
+      <div className="flex flex-col items-center gap-8 p-8 w-full">
+        <Logo size="small" />
+        <p className="text-2xl font-bold text-black">Quiz Complete!</p>
+        <ScoreBoard answers={answers} />
+        <button
+          onClick={handleStartNewQuiz}
+          className="px-10 py-3 rounded-full font-semibold text-lg text-white
+                     shadow-[4px_4px_0px_#3b0764] cursor-pointer
+                     hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#3b0764]
+                     active:translate-y-0.5 active:shadow-[2px_2px_0px_#3b0764]
+                     transition-all duration-100"
+          style={{ backgroundColor: '#7c3aed', opacity: 0.85 }}
+        >
+          Start New Quiz
+        </button>
+        <button
+          onClick={() => navigate('/')}
+          className="text-purple font-medium underline underline-offset-4 cursor-pointer hover:text-purple-dark transition-colors"
+        >
+          ← Back to Home
+        </button>
+      </div>
+    );
+  }
+
   const currentQuestion = questions[currentIndex];
   const isLastQuestion = currentIndex === questions.length - 1;
 
@@ -51,41 +88,37 @@ function Quiz() {
         onSubmit={handleSubmit}
       />
 
-      {/* Next / Finish — only visible after answering */}
-      {answered && (
-        isLastQuestion ? (
-          <button
-            onClick={handleFinish}
-            className="px-10 py-3 rounded-full font-semibold text-lg text-white
-                       shadow-[4px_4px_0px_#3b0764] cursor-pointer
-                       hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#3b0764]
-                       active:translate-y-0.5 active:shadow-[2px_2px_0px_#3b0764]
-                       transition-all duration-100"
-            style={{ backgroundColor: '#7c3aed', opacity: 0.85 }}
-          >
-            Finish Quiz
-          </button>
-        ) : (
-          <button
-            onClick={handleNext}
-            className="px-10 py-3 rounded-full font-semibold text-lg text-white
-                       shadow-[4px_4px_0px_#3b0764] cursor-pointer
-                       hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#3b0764]
-                       active:translate-y-0.5 active:shadow-[2px_2px_0px_#3b0764]
-                       transition-all duration-100"
-            style={{ backgroundColor: '#7c3aed', opacity: 0.85 }}
-          >
-            Next Question →
-          </button>
-        )
+      {/* Next — only visible after answering, and not on the last question */}
+      {answered && !isLastQuestion && (
+        <button
+          onClick={handleNext}
+          className="px-10 py-3 rounded-full font-semibold text-lg text-white
+                     shadow-[4px_4px_0px_#3b0764] cursor-pointer
+                     hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#3b0764]
+                     active:translate-y-0.5 active:shadow-[2px_2px_0px_#3b0764]
+                     transition-all duration-100"
+          style={{ backgroundColor: '#7c3aed', opacity: 0.85 }}
+        >
+          Next Question →
+        </button>
       )}
 
-      <button
-        onClick={() => navigate('/')}
-        className="text-purple font-medium underline underline-offset-4 cursor-pointer hover:text-purple-dark transition-colors"
-      >
-        ← Back to Home
-      </button>
+      {/* Finish — always available so the user can end the quiz at any point */}
+      <div className="flex items-center gap-6">
+        <button
+          onClick={handleFinish}
+          className="px-6 py-2 rounded-full font-semibold text-sm border-2 border-purple text-purple
+                     cursor-pointer hover:bg-purple-light transition-colors duration-100"
+        >
+          Finish Quiz
+        </button>
+        <button
+          onClick={() => navigate('/')}
+          className="text-purple font-medium underline underline-offset-4 cursor-pointer hover:text-purple-dark transition-colors"
+        >
+          ← Back to Home
+        </button>
+      </div>
     </div>
   );
 }
