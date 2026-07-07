@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Logo from '../components/Logo';
 import QuestionCard from '../components/QuestionCard';
+import ScoreBoard from '../components/ScoreBoard';
 import { useQuizSession } from '../hooks/useQuizSession';
 
 function Quiz() {
@@ -24,7 +25,7 @@ function Quiz() {
     );
   }
 
-  const { questions, currentIndex } = session;
+  const { questions, currentIndex, answers } = session;
   const currentQuestion = questions[currentIndex];
   const isLastQuestion = currentIndex === questions.length - 1;
 
@@ -41,6 +42,8 @@ function Quiz() {
   return (
     <div className="flex flex-col items-center gap-8 p-8 w-full">
       <Logo size="small" />
+
+      <ScoreBoard answers={answers} />
 
       <QuestionCard
         key={currentQuestion.id}
