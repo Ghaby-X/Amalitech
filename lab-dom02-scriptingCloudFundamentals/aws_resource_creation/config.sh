@@ -8,7 +8,7 @@ PROJECT_TAG="AutomationLab"
 KEY_NAME="devops-lab-key"
 KEY_FILE="${KEY_NAME}.pem"
 INSTANCE_NAME="devops-lab-instance"
-INSTANCE_TYPE="t2.micro"
+INSTANCE_TYPE="t3.micro"
 
 # Security group
 SG_NAME="devops-sg"
