@@ -21,3 +21,9 @@ dist-ssr
 *.sln
 *.sw?
 
+# terraform
+.terraform
+.terraform**
+
+# lab datasets (provided separately, not committed)
+lab-ntech02-AppliedAIAndPromptEngineering/ai-driven-data-insights-report/data/
