@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ember &amp; Oak: Wood-Fired American Grill</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <nav class="nav">
+      <span class="logo">Ember &amp; Oak</span>
+      <a class="nav-cta" href="#reserve">Reserve a Table</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-content">
+        <h1>Fire. Wood. Flavor.</h1>
+        <p class="subheadline">Wood-fired American cooking in the heart of downtown.</p>
+        <a class="btn btn-primary" href="#reserve">Reserve a Table</a>
+      </div>
+    </section>
+
+    <section class="about" id="about">
+      <h2>Our Story</h2>
+      <p>
+        Ember &amp; Oak opened in 2019 with one idea: everything tastes
+        better over live fire. Our kitchen is built around a custom
+        wood-fired grill and smoker, and our menu changes with what's in
+        season and what the fire does best.
+      </p>
+    </section>
+
+    <section class="menu" id="menu">
+      <h2>Menu Highlights</h2>
+      <ul class="menu-list">
+        <li class="menu-item">
+          <div class="menu-item-head">
+            <h3>Smoked Beef Short Rib</h3>
+            <span class="price">$32</span>
+          </div>
+          <p>12-hour smoked, bourbon glaze.</p>
+        </li>
+        <li class="menu-item">
+          <div class="menu-item-head">
+            <h3>Charred Cauliflower Steak</h3>
+            <span class="price">$19</span>
+          </div>
+          <p>Chili oil, herb yogurt, toasted pine nuts.</p>
+        </li>
+        <li class="menu-item">
+          <div class="menu-item-head">
+            <h3>Wood-Fired Half Chicken</h3>
+            <span class="price">$24</span>
+          </div>
+          <p>Citrus brine, salsa verde.</p>
+        </li>
+        <li class="menu-item">
+          <div class="menu-item-head">
+            <h3>Embered Carrots</h3>
+            <span class="price">$12</span>
+          </div>
+          <p>Brown butter, dukkah.</p>
+        </li>
+        <li class="menu-item">
+          <div class="menu-item-head">
+            <h3>Oak-Smoked Chocolate Tart</h3>
+            <span class="price">$11</span>
+          </div>
+          <p>Sea salt, smoked cream.</p>
+        </li>
+      </ul>
+    </section>
+
+    <section class="hours" id="hours">
+      <h2>Hours &amp; Location</h2>
+      <p>412 Kiln Street, Downtown</p>
+      <p>Tue&ndash;Sun 5pm&ndash;11pm &middot; Closed Mondays</p>
+    </section>
+
+    <section class="reserve" id="reserve">
+      <h2>Request a Reservation</h2>
+      <p>Tables go fast on weekends, reserve ahead.</p>
+
+      <form id="reservation-form" novalidate>
+        <div class="field">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" autocomplete="name" required>
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" autocomplete="email" required>
+        </div>
+        <div class="field">
+          <label for="date">Date</label>
+          <input type="date" id="date" name="date" required>
+        </div>
+        <div class="field">
+          <label for="party-size">Party size</label>
+          <input type="number" id="party-size" name="party-size" min="1" max="20" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Request Reservation</button>
+        <p id="reservation-confirmation" class="confirmation" role="status" hidden></p>
+      </form>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>412 Kiln Street, Downtown</p>
+    <p class="social-links">
+      <a href="https://instagram.com" target="_blank" rel="noopener noreferrer">Instagram</a>
+      <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">Facebook</a>
+    </p>
+    <p class="copyright">&copy; 2026 Ember &amp; Oak. All rights reserved.</p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
