@@ -3,6 +3,10 @@
 Bash scripts that automate provisioning of an EC2 instance, a security group,
 and an S3 bucket via the AWS CLI, plus a script to tear everything back down.
 
+## Architecture
+
+![AWS architecture: a user reaches a t3 EC2 instance in a public subnet of the default VPC (eu-west-1) through a security group allowing only SSH and HTTP, with a separate S3 bucket blocking public access and non-TLS requests](lab-dom02-architecture.png)
+
 ## Files
 
 | File | Purpose |
