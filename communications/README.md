@@ -4,7 +4,11 @@ This directory contains resources from our communications sessions. The sessions
 
 ## What's in here
 
-Resources will be added as we progress through the sessions. Each file covers a specific topic from the sessions.
+Resources are in the `resources/` directory. Each file covers a specific topic from the sessions.
+
+| Resource | Description |
+|---|---|
+| [pull-requests.md](resources/pull-requests.md) | Guidelines for writing, sizing, reviewing, and responding to PRs |
 
 ## Topics covered
 
