@@ -10,3 +10,4 @@ Repository for labs. Each lab lives in its own directory and branch, with its ow
 | SysAdmin starter pack | DevOps | `lab-dom01-devopsfoundation` | `lab-dom01-devopsfoundation` |
 | Scripting and Cloud Fundamentals | DevOps | `lab-dom02-scriptingCloudFundamentals` | `lab-dom02-scriptingLabFundamentals` |
 | Applied AI and Prompt Engineering | Non-technical | `lab-ntech02-AppliedAIAndPromptEngineering` | `lab-ntech02-AppliedAIAndPromptEngineering` |
+| IaC with Terraform | DevOps | `lab-dom03-IACWithTerraform` | `lab-dom03-IACWithTerraform` |
