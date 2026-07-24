@@ -1,0 +1,30 @@
+name: server-details-site
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: server-details-site:latest
+    container_name: server_details_app
+    restart: unless-stopped
+    network_mode: "host"
+    environment:
+      - PORT=${PORT:-4000}
+      - DATA_DIR=${DATA_DIR:-/app/data}
+      - DB_NAME=${DB_NAME:-database.sqlite}
+      - NODE_ENV=${NODE_ENV:-production}
+      - REFRESH_INTERVAL_MS=${REFRESH_INTERVAL_MS:-3000}
+    volumes:
+      # Named volume persistence for SQLite database
+      - sqlite_data:${DATA_DIR:-/app/data}
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:${PORT:-3000}/api/server-info || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+volumes:
+  sqlite_data:
+    driver: local
