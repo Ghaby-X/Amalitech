@@ -11,3 +11,4 @@ Repository for labs. Each lab lives in its own directory and branch, with its ow
 | Scripting and Cloud Fundamentals | DevOps | `lab-dom02-scriptingCloudFundamentals` | `lab-dom02-scriptingLabFundamentals` |
 | Applied AI and Prompt Engineering | Non-technical | `lab-ntech02-AppliedAIAndPromptEngineering` | `lab-ntech02-AppliedAIAndPromptEngineering` |
 | IaC with Terraform | DevOps | `lab-dom03-IACWithTerraform` | `lab-dom03-IACWithTerraform` |
+| Data Governance | Non-technical | `lab-ntech03-datagovernance` | `lab-ntech03-datagovernance` |
