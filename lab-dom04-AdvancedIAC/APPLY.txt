@@ -369,7 +369,7 @@ Apply complete! Resources: 13 added, 0 changed, 0 destroyed.
 Outputs:
 
 instance_id = "i-0a9894b08370a3802"
-instance_public_dns = ""
+instance_public_dns = "ec2-54-171-86-70.eu-west-1.compute.amazonaws.com"
 instance_public_ip = "54.171.86.70"
 key_pair_name = "lab-dom04-public-key.pem"
 private_key_path = "./lab-dom04-private-key.pem"
