@@ -1,5 +1,5 @@
 - name: Deploy containerized server details site behind Nginx reverse proxy
-  hosts: lab-dom04
+  hosts: lab_dom04
   become: true
 
   vars:
