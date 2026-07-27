@@ -1,0 +1,33 @@
+- name: Deploy containerized server details site behind Nginx reverse proxy
+  hosts: lab-dom04
+  become: true
+
+  vars:
+    domain_name: _
+    app_port: 3000
+    app_dir: /opt/server-details-site
+    nginx_template: "{{ playbook_dir }}/templates/nginx.conf.j2"
+    nginx_site_conf_path: /etc/nginx/conf.d/server_info.conf
+
+  roles:
+    - nginx
+    - docker
+
+  tasks:
+    - name: Ensure app directory exists
+      ansible.builtin.file:
+        path: "{{ app_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Deploy Docker Compose file
+      ansible.builtin.copy:
+        src: site/compose.yml
+        dest: "{{ app_dir }}/compose.yml"
+        mode: '0644'
+
+    - name: Start application via Docker Compose
+      community.docker.docker_compose_v2:
+        project_src: "{{ app_dir }}"
+        state: present
+        pull: always
