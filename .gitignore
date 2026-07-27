@@ -28,13 +28,8 @@ dist-ssr
 *.tfstate.backup
 terraform.tfvars
 
-# lab datasets (provided separately, not committed)
-lab-ntech02-AppliedAIAndPromptEngineering/ai-driven-data-insights-report/data/
-
-# generated PDF build output
-lab-ntech02-AppliedAIAndPromptEngineering/multistage-ai-workflow/combined.html
-lab-ntech02-AppliedAIAndPromptEngineering/multistage-ai-workflow/*.pdf
-lab-ntech02-AppliedAIAndPromptEngineering/multistage-ai-workflow/build_pdf.py
+# private keys
+*.pem
 
 # lab datasets (provided separately, not committed)
 lab-ntech02-AppliedAIAndPromptEngineering/ai-driven-data-insights-report/data/
