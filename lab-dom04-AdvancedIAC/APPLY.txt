@@ -1,0 +1,379 @@
+data.aws_ami.amazon_linux: Reading...
+data.aws_ami.amazon_linux: Read complete after 2s [id=ami-0127a2246cff252ae]
+
+Terraform used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  + create
+
+Terraform will perform the following actions:
+
+  # aws_instance.web will be created
+  + resource "aws_instance" "web" {
+      + ami                                  = "ami-0127a2246cff252ae"
+      + arn                                  = (known after apply)
+      + associate_public_ip_address          = true
+      + availability_zone                    = (known after apply)
+      + disable_api_stop                     = (known after apply)
+      + disable_api_termination              = (known after apply)
+      + ebs_optimized                        = (known after apply)
+      + enable_primary_ipv6                  = (known after apply)
+      + force_destroy                        = false
+      + get_password_data                    = false
+      + host_id                              = (known after apply)
+      + host_resource_group_arn              = (known after apply)
+      + iam_instance_profile                 = (known after apply)
+      + id                                   = (known after apply)
+      + instance_initiated_shutdown_behavior = (known after apply)
+      + instance_lifecycle                   = (known after apply)
+      + instance_state                       = (known after apply)
+      + instance_type                        = "t3.micro"
+      + ipv6_address_count                   = (known after apply)
+      + ipv6_addresses                       = (known after apply)
+      + key_name                             = "lab-dom04-public-key.pem"
+      + monitoring                           = (known after apply)
+      + outpost_arn                          = (known after apply)
+      + password_data                        = (known after apply)
+      + placement_group                      = (known after apply)
+      + placement_group_id                   = (known after apply)
+      + placement_partition_number           = (known after apply)
+      + primary_network_interface_id         = (known after apply)
+      + private_dns                          = (known after apply)
+      + private_ip                           = (known after apply)
+      + public_dns                           = (known after apply)
+      + public_ip                            = (known after apply)
+      + region                               = "eu-west-1"
+      + secondary_private_ips                = (known after apply)
+      + security_groups                      = (known after apply)
+      + source_dest_check                    = true
+      + spot_instance_request_id             = (known after apply)
+      + subnet_id                            = (known after apply)
+      + tags                                 = {
+          + "Name" = "lab-dom04-web"
+        }
+      + tags_all                             = {
+          + "ManagedBy" = "Terraform"
+          + "Name"      = "lab-dom04-web"
+          + "Project"   = "lab-dom03-IAC"
+        }
+      + tenancy                              = (known after apply)
+      + user_data_base64                     = (known after apply)
+      + user_data_replace_on_change          = false
+      + vpc_security_group_ids               = (known after apply)
+
+      + capacity_reservation_specification (known after apply)
+
+      + cpu_options (known after apply)
+
+      + ebs_block_device (known after apply)
+
+      + enclave_options (known after apply)
+
+      + ephemeral_block_device (known after apply)
+
+      + instance_market_options (known after apply)
+
+      + maintenance_options (known after apply)
+
+      + metadata_options (known after apply)
+
+      + network_interface (known after apply)
+
+      + primary_network_interface (known after apply)
+
+      + private_dns_name_options (known after apply)
+
+      + root_block_device (known after apply)
+
+      + secondary_network_interface (known after apply)
+    }
+
+  # aws_internet_gateway.gw will be created
+  + resource "aws_internet_gateway" "gw" {
+      + arn      = (known after apply)
+      + id       = (known after apply)
+      + owner_id = (known after apply)
+      + region   = "eu-west-1"
+      + tags     = {
+          + "Name" = "lab-dom04-igw"
+        }
+      + tags_all = {
+          + "ManagedBy" = "Terraform"
+          + "Name"      = "lab-dom04-igw"
+          + "Project"   = "lab-dom03-IAC"
+        }
+      + vpc_id   = (known after apply)
+    }
+
+  # aws_key_pair.ec2_key_pair will be created
+  + resource "aws_key_pair" "ec2_key_pair" {
+      + arn             = (known after apply)
+      + fingerprint     = (known after apply)
+      + id              = (known after apply)
+      + key_name        = "lab-dom04-public-key.pem"
+      + key_name_prefix = (known after apply)
+      + key_pair_id     = (known after apply)
+      + key_type        = (known after apply)
+      + public_key      = (known after apply)
+      + region          = "eu-west-1"
+      + tags_all        = {
+          + "ManagedBy" = "Terraform"
+          + "Project"   = "lab-dom03-IAC"
+        }
+    }
+
+  # aws_route_table.rt will be created
+  + resource "aws_route_table" "rt" {
+      + arn              = (known after apply)
+      + id               = (known after apply)
+      + owner_id         = (known after apply)
+      + propagating_vgws = (known after apply)
+      + region           = "eu-west-1"
+      + route            = [
+          + {
+              + gateway_id                 = (known after apply)
+              + ipv6_cidr_block            = "::/0"
+                # (12 unchanged attributes hidden)
+            },
+          + {
+              + cidr_block                 = "0.0.0.0/0"
+              + gateway_id                 = (known after apply)
+                # (12 unchanged attributes hidden)
+            },
+        ]
+      + tags             = {
+          + "Name" = "lab-dom04-rt"
+        }
+      + tags_all         = {
+          + "ManagedBy" = "Terraform"
+          + "Name"      = "lab-dom04-rt"
+          + "Project"   = "lab-dom03-IAC"
+        }
+      + vpc_id           = (known after apply)
+    }
+
+  # aws_route_table_association.rt_association will be created
+  + resource "aws_route_table_association" "rt_association" {
+      + id             = (known after apply)
+      + region         = "eu-west-1"
+      + route_table_id = (known after apply)
+      + subnet_id      = (known after apply)
+    }
+
+  # aws_security_group.allow_tls will be created
+  + resource "aws_security_group" "allow_tls" {
+      + arn                    = (known after apply)
+      + description            = "Allow SSH from and HTTP from anywhere; all outbound traffic allowed"
+      + egress                 = (known after apply)
+      + id                     = (known after apply)
+      + ingress                = (known after apply)
+      + name                   = "allow_tls_ssh"
+      + name_prefix            = (known after apply)
+      + owner_id               = (known after apply)
+      + region                 = "eu-west-1"
+      + revoke_rules_on_delete = false
+      + tags                   = {
+          + "Name" = "allow_tls_ssh"
+        }
+      + tags_all               = {
+          + "ManagedBy" = "Terraform"
+          + "Name"      = "allow_tls_ssh"
+          + "Project"   = "lab-dom03-IAC"
+        }
+      + vpc_id                 = (known after apply)
+    }
+
+  # aws_subnet.public will be created
+  + resource "aws_subnet" "public" {
+      + arn                                            = (known after apply)
+      + assign_ipv6_address_on_creation                = false
+      + availability_zone                              = (known after apply)
+      + availability_zone_id                           = (known after apply)
+      + cidr_block                                     = "10.0.1.0/24"
+      + enable_dns64                                   = false
+      + enable_resource_name_dns_a_record_on_launch    = false
+      + enable_resource_name_dns_aaaa_record_on_launch = false
+      + id                                             = (known after apply)
+      + ipv6_cidr_block                                = (known after apply)
+      + ipv6_cidr_block_association_id                 = (known after apply)
+      + ipv6_native                                    = false
+      + map_public_ip_on_launch                        = true
+      + owner_id                                       = (known after apply)
+      + private_dns_hostname_type_on_launch            = (known after apply)
+      + region                                         = "eu-west-1"
+      + tags                                           = {
+          + "Name" = "lab-dom04-public-subnet"
+        }
+      + tags_all                                       = {
+          + "ManagedBy" = "Terraform"
+          + "Name"      = "lab-dom04-public-subnet"
+          + "Project"   = "lab-dom03-IAC"
+        }
+      + vpc_id                                         = (known after apply)
+    }
+
+  # aws_vpc.main will be created
+  + resource "aws_vpc" "main" {
+      + arn                                  = (known after apply)
+      + cidr_block                           = "10.0.0.0/16"
+      + default_network_acl_id               = (known after apply)
+      + default_route_table_id               = (known after apply)
+      + default_security_group_id            = (known after apply)
+      + dhcp_options_id                      = (known after apply)
+      + enable_dns_hostnames                 = (known after apply)
+      + enable_dns_support                   = true
+      + enable_network_address_usage_metrics = (known after apply)
+      + id                                   = (known after apply)
+      + instance_tenancy                     = "default"
+      + ipv6_association_id                  = (known after apply)
+      + ipv6_cidr_block                      = (known after apply)
+      + ipv6_cidr_block_network_border_group = (known after apply)
+      + main_route_table_id                  = (known after apply)
+      + owner_id                             = (known after apply)
+      + region                               = "eu-west-1"
+      + tags                                 = {
+          + "Name" = "lab-dom04-vpc"
+        }
+      + tags_all                             = {
+          + "ManagedBy" = "Terraform"
+          + "Name"      = "lab-dom04-vpc"
+          + "Project"   = "lab-dom03-IAC"
+        }
+    }
+
+  # aws_vpc_security_group_egress_rule.all will be created
+  + resource "aws_vpc_security_group_egress_rule" "all" {
+      + arn                    = (known after apply)
+      + cidr_ipv4              = "0.0.0.0/0"
+      + description            = "allow all outbound"
+      + id                     = (known after apply)
+      + ip_protocol            = "-1"
+      + region                 = "eu-west-1"
+      + security_group_id      = (known after apply)
+      + security_group_rule_id = (known after apply)
+      + tags_all               = {
+          + "ManagedBy" = "Terraform"
+          + "Project"   = "lab-dom03-IAC"
+        }
+    }
+
+  # aws_vpc_security_group_ingress_rule.http will be created
+  + resource "aws_vpc_security_group_ingress_rule" "http" {
+      + arn                    = (known after apply)
+      + cidr_ipv4              = "0.0.0.0/0"
+      + description            = "HTTP from anywhere"
+      + from_port              = 80
+      + id                     = (known after apply)
+      + ip_protocol            = "tcp"
+      + region                 = "eu-west-1"
+      + security_group_id      = (known after apply)
+      + security_group_rule_id = (known after apply)
+      + tags_all               = {
+          + "ManagedBy" = "Terraform"
+          + "Project"   = "lab-dom03-IAC"
+        }
+      + to_port                = 80
+    }
+
+  # aws_vpc_security_group_ingress_rule.ssh will be created
+  + resource "aws_vpc_security_group_ingress_rule" "ssh" {
+      + arn                    = (known after apply)
+      + cidr_ipv4              = "102.22.146.226/32"
+      + description            = "SSH from allowed IP"
+      + from_port              = 22
+      + id                     = (known after apply)
+      + ip_protocol            = "tcp"
+      + region                 = "eu-west-1"
+      + security_group_id      = (known after apply)
+      + security_group_rule_id = (known after apply)
+      + tags_all               = {
+          + "ManagedBy" = "Terraform"
+          + "Project"   = "lab-dom03-IAC"
+        }
+      + to_port                = 22
+    }
+
+  # local_sensitive_file.private_key will be created
+  + resource "local_sensitive_file" "private_key" {
+      + content              = (sensitive value)
+      + content_base64sha256 = (known after apply)
+      + content_base64sha512 = (known after apply)
+      + content_md5          = (known after apply)
+      + content_sha1         = (known after apply)
+      + content_sha256       = (known after apply)
+      + content_sha512       = (known after apply)
+      + directory_permission = "0700"
+      + file_permission      = "0700"
+      + filename             = "./lab-dom04-private-key.pem"
+      + id                   = (known after apply)
+    }
+
+  # tls_private_key.ec2_key_pair will be created
+  + resource "tls_private_key" "ec2_key_pair" {
+      + algorithm                     = "RSA"
+      + ecdsa_curve                   = "P224"
+      + id                            = (known after apply)
+      + private_key_openssh           = (sensitive value)
+      + private_key_pem               = (sensitive value)
+      + private_key_pem_pkcs8         = (sensitive value)
+      + public_key_fingerprint_md5    = (known after apply)
+      + public_key_fingerprint_sha256 = (known after apply)
+      + public_key_openssh            = (known after apply)
+      + public_key_pem                = (known after apply)
+      + rsa_bits                      = 4096
+    }
+
+Plan: 13 to add, 0 to change, 0 to destroy.
+
+Changes to Outputs:
+  + instance_id         = (known after apply)
+  + instance_public_dns = (known after apply)
+  + instance_public_ip  = (known after apply)
+  + key_pair_name       = "lab-dom04-public-key.pem"
+  + private_key_path    = "./lab-dom04-private-key.pem"
+  + public_subnet_id    = (known after apply)
+  + security_group_id   = (known after apply)
+  + ssh_user            = "ec2-user"
+  + vpc_id              = (known after apply)
+tls_private_key.ec2_key_pair: Creating...
+aws_vpc.main: Creating...
+tls_private_key.ec2_key_pair: Creation complete after 2s [id=dfb7635f321294694f1e9f23989c3fe7abe1261a]
+aws_key_pair.ec2_key_pair: Creating...
+local_sensitive_file.private_key: Creating...
+local_sensitive_file.private_key: Creation complete after 0s [id=750a16da81953ccc8f6886c055dedc1eec637b38]
+aws_key_pair.ec2_key_pair: Creation complete after 1s [id=lab-dom04-public-key.pem]
+aws_vpc.main: Creation complete after 4s [id=vpc-088b73bbddac713c2]
+aws_internet_gateway.gw: Creating...
+aws_subnet.public: Creating...
+aws_security_group.allow_tls: Creating...
+aws_internet_gateway.gw: Creation complete after 1s [id=igw-0f6ec3809a983759f]
+aws_route_table.rt: Creating...
+aws_security_group.allow_tls: Creation complete after 3s [id=sg-0c11743bf89e99c18]
+aws_vpc_security_group_egress_rule.all: Creating...
+aws_vpc_security_group_ingress_rule.ssh: Creating...
+aws_vpc_security_group_ingress_rule.http: Creating...
+aws_vpc_security_group_egress_rule.all: Creation complete after 0s [id=sgr-05c6501a0a9583f40]
+aws_vpc_security_group_ingress_rule.http: Creation complete after 0s [id=sgr-0310f434d5f5c630b]
+aws_vpc_security_group_ingress_rule.ssh: Creation complete after 0s [id=sgr-0f17501cdfbc8c14d]
+aws_route_table.rt: Creation complete after 4s [id=rtb-03955303c87396d8a]
+aws_subnet.public: Still creating... [00m10s elapsed]
+aws_subnet.public: Creation complete after 13s [id=subnet-079cb33d77f42ac09]
+aws_route_table_association.rt_association: Creating...
+aws_instance.web: Creating...
+aws_route_table_association.rt_association: Creation complete after 1s [id=rtbassoc-07ec328638968544c]
+aws_instance.web: Still creating... [00m10s elapsed]
+aws_instance.web: Creation complete after 15s [id=i-0a9894b08370a3802]
+Releasing state lock. This may take a few moments...
+
+Apply complete! Resources: 13 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+instance_id = "i-0a9894b08370a3802"
+instance_public_dns = ""
+instance_public_ip = "54.171.86.70"
+key_pair_name = "lab-dom04-public-key.pem"
+private_key_path = "./lab-dom04-private-key.pem"
+public_subnet_id = "subnet-079cb33d77f42ac09"
+security_group_id = "sg-0c11743bf89e99c18"
+ssh_user = "ec2-user"
+vpc_id = "vpc-088b73bbddac713c2"
