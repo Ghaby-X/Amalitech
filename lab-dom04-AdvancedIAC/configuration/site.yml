@@ -1,0 +1,19 @@
+- name: Deploy static site served directly by Nginx
+  hosts: lab_dom04
+  become: true
+
+  vars:
+    domain_name: _
+    web_root: /usr/share/nginx/html
+    nginx_template: "{{ playbook_dir }}/templates/nginx.conf.j2"
+    nginx_site_conf_path: /etc/nginx/conf.d/server_info.conf
+
+  roles:
+    - nginx
+
+  tasks:
+    - name: Deploy static site content
+      ansible.builtin.copy:
+        src: site/webroot/
+        dest: "{{ web_root }}/"
+        mode: '0644'

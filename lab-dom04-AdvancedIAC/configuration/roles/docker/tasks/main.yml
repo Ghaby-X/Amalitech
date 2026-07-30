@@ -1,0 +1,33 @@
+---
+- name: Load OS-family-specific variables (falls back to role defaults if none exist)
+  ansible.builtin.include_vars: "{{ item }}"
+  with_first_found:
+    - files:
+        - "{{ ansible_facts['os_family'] }}.yml"
+      paths:
+        - "{{ role_path }}/vars"
+      skip: true
+
+- name: Ensure Docker is installed
+  ansible.builtin.package:
+    name: "{{ docker_package_name }}"
+    state: present
+    update_cache: "{{ docker_package_update_cache }}"
+
+- name: Ensure Docker is started and enabled
+  ansible.builtin.service:
+    name: docker
+    state: "{{ docker_service_state }}"
+    enabled: "{{ docker_service_enabled }}"
+
+- name: Ensure Docker CLI plugins directory exists
+  ansible.builtin.file:
+    path: "{{ docker_cli_plugins_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Install Docker Compose plugin
+  ansible.builtin.get_url:
+    url: "https://github.com/docker/compose/releases/download/{{ docker_compose_version }}/docker-compose-linux-{{ ansible_facts['architecture'] }}"
+    dest: "{{ docker_cli_plugins_dir }}/docker-compose"
+    mode: '0755'

@@ -52,6 +52,20 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "backend" {
   }
 }
 
+resource "aws_s3_bucket_lifecycle_configuration" "backend" {
+  bucket = aws_s3_bucket.backend.id
+
+  rule {
+    id     = "limit-statefile-versions"
+    status = "Enabled"
+
+    noncurrent_version_expiration {
+      noncurrent_days           = 1
+      newer_noncurrent_versions = 2
+    }
+  }
+}
+
 resource "aws_s3_bucket_public_access_block" "backend" {
   bucket = aws_s3_bucket.backend.id
 

@@ -1,0 +1,3 @@
+[submodule "helpers/terraform-modules"]
+	path = helpers/terraform-modules
+	url = git@github.com:Ghaby-X/terraform-modules.git
