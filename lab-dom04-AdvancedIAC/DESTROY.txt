@@ -1,18 +1,17 @@
-tls_private_key.ec2_key_pair: Refreshing state... [id=dfb7635f321294694f1e9f23989c3fe7abe1261a]
-local_sensitive_file.private_key: Refreshing state... [id=750a16da81953ccc8f6886c055dedc1eec637b38]
+data.terraform_remote_state.keypair: Reading...
 data.aws_ami.amazon_linux: Reading...
-aws_key_pair.ec2_key_pair: Refreshing state... [id=lab-dom04-public-key.pem]
-aws_vpc.main: Refreshing state... [id=vpc-088b73bbddac713c2]
-data.aws_ami.amazon_linux: Read complete after 1s [id=ami-0127a2246cff252ae]
-aws_security_group.allow_tls: Refreshing state... [id=sg-0c11743bf89e99c18]
-aws_internet_gateway.gw: Refreshing state... [id=igw-0f6ec3809a983759f]
-aws_subnet.public: Refreshing state... [id=subnet-079cb33d77f42ac09]
-aws_route_table.rt: Refreshing state... [id=rtb-03955303c87396d8a]
-aws_vpc_security_group_ingress_rule.http: Refreshing state... [id=sgr-0310f434d5f5c630b]
-aws_vpc_security_group_egress_rule.all: Refreshing state... [id=sgr-05c6501a0a9583f40]
-aws_vpc_security_group_ingress_rule.ssh: Refreshing state... [id=sgr-0f17501cdfbc8c14d]
-aws_route_table_association.rt_association: Refreshing state... [id=rtbassoc-07ec328638968544c]
-aws_instance.web: Refreshing state... [id=i-0a9894b08370a3802]
+module.vpc.aws_vpc.main: Refreshing state... [id=vpc-0457cf83a0f84efe1]
+data.terraform_remote_state.keypair: Read complete after 2s
+data.aws_ami.amazon_linux: Read complete after 2s [id=ami-020fa5656af2c9473]
+module.vpc.aws_internet_gateway.this["this"]: Refreshing state... [id=igw-093e20255026433d9]
+module.security_group.aws_security_group.this: Refreshing state... [id=sg-05cef581f9b7eb862]
+module.subnet.aws_subnet.this["eu-west-1a"]: Refreshing state... [id=subnet-023a60b89ac4b354d]
+module.security_group.aws_vpc_security_group_egress_rule.this["all"]: Refreshing state... [id=sgr-0817c1f84175cf717]
+module.security_group.aws_vpc_security_group_ingress_rule.this["http"]: Refreshing state... [id=sgr-0a4ddda538eca5e9a]
+module.security_group.aws_vpc_security_group_ingress_rule.this["ssh"]: Refreshing state... [id=sgr-0315e96c4ecd28437]
+module.route_table.aws_route_table.this: Refreshing state... [id=rtb-0245b436b0bbd28e8]
+module.ec2.aws_instance.this: Refreshing state... [id=i-0ed5bf9a246f83c71]
+module.route_table.aws_route_table_association.this["eu-west-1a"]: Refreshing state... [id=rtbassoc-059055d1c9ad166b0]
 
 Terraform used the selected providers to generate the following execution
 plan. Resource actions are indicated with the following symbols:
@@ -20,50 +19,52 @@ plan. Resource actions are indicated with the following symbols:
 
 Terraform will perform the following actions:
 
-  # aws_instance.web will be destroyed
-  - resource "aws_instance" "web" {
-      - ami                                  = "ami-0127a2246cff252ae" -> null
-      - arn                                  = "arn:aws:ec2:eu-west-1:711387121692:instance/i-0a9894b08370a3802" -> null
+  # module.ec2.aws_instance.this will be destroyed
+  - resource "aws_instance" "this" {
+      - ami                                  = "ami-020fa5656af2c9473" -> null
+      - arn                                  = "arn:aws:ec2:eu-west-1:711387121692:instance/i-0ed5bf9a246f83c71" -> null
       - associate_public_ip_address          = true -> null
-      - availability_zone                    = "eu-west-1c" -> null
+      - availability_zone                    = "eu-west-1a" -> null
       - disable_api_stop                     = false -> null
       - disable_api_termination              = false -> null
       - ebs_optimized                        = false -> null
       - force_destroy                        = false -> null
       - get_password_data                    = false -> null
       - hibernation                          = false -> null
-      - id                                   = "i-0a9894b08370a3802" -> null
+      - id                                   = "i-0ed5bf9a246f83c71" -> null
       - instance_initiated_shutdown_behavior = "stop" -> null
       - instance_state                       = "running" -> null
       - instance_type                        = "t3.micro" -> null
       - ipv6_address_count                   = 0 -> null
       - ipv6_addresses                       = [] -> null
-      - key_name                             = "lab-dom04-public-key.pem" -> null
+      - key_name                             = "lab-public-key.pem" -> null
       - monitoring                           = false -> null
       - placement_partition_number           = 0 -> null
-      - primary_network_interface_id         = "eni-0a52237df44cfe0e2" -> null
-      - private_dns                          = "ip-10-0-1-93.eu-west-1.compute.internal" -> null
-      - private_ip                           = "10.0.1.93" -> null
-      - public_ip                            = "54.171.86.70" -> null
+      - primary_network_interface_id         = "eni-02bcdcd61ebb12b56" -> null
+      - private_dns                          = "ip-10-0-1-27.eu-west-1.compute.internal" -> null
+      - private_ip                           = "10.0.1.27" -> null
+      - public_dns                           = "ec2-54-220-240-203.eu-west-1.compute.amazonaws.com" -> null
+      - public_ip                            = "54.220.240.203" -> null
       - region                               = "eu-west-1" -> null
       - secondary_private_ips                = [] -> null
       - security_groups                      = [] -> null
       - source_dest_check                    = true -> null
-      - subnet_id                            = "subnet-079cb33d77f42ac09" -> null
+      - subnet_id                            = "subnet-023a60b89ac4b354d" -> null
       - tags                                 = {
           - "Name" = "lab-dom04-web"
         } -> null
       - tags_all                             = {
+          - "Category"  = "lab"
           - "ManagedBy" = "Terraform"
           - "Name"      = "lab-dom04-web"
-          - "Project"   = "lab-dom03-IAC"
+          - "Project"   = "lab-dom04-IAC"
         } -> null
       - tenancy                              = "default" -> null
       - user_data_replace_on_change          = false -> null
       - vpc_security_group_ids               = [
-          - "sg-0c11743bf89e99c18",
+          - "sg-05cef581f9b7eb862",
         ] -> null
-        # (9 unchanged attributes hidden)
+        # (8 unchanged attributes hidden)
 
       - capacity_reservation_specification {
           - capacity_reservation_preference = "open" -> null
@@ -97,7 +98,7 @@ Terraform will perform the following actions:
 
       - primary_network_interface {
           - delete_on_termination = true -> null
-          - network_interface_id  = "eni-0a52237df44cfe0e2" -> null
+          - network_interface_id  = "eni-02bcdcd61ebb12b56" -> null
         }
 
       - private_dns_name_options {
@@ -111,73 +112,31 @@ Terraform will perform the following actions:
           - device_name           = "/dev/xvda" -> null
           - encrypted             = false -> null
           - iops                  = 3000 -> null
-          - tags                  = {
-              - "ManagedBy" = "Terraform"
-              - "Project"   = "lab-dom03-IAC"
-            } -> null
+          - tags                  = {} -> null
           - tags_all              = {
+              - "Category"  = "lab"
               - "ManagedBy" = "Terraform"
-              - "Project"   = "lab-dom03-IAC"
+              - "Project"   = "lab-dom04-IAC"
             } -> null
           - throughput            = 125 -> null
-          - volume_id             = "vol-09b7a8e59a81a223c" -> null
-          - volume_size           = 2 -> null
+          - volume_id             = "vol-06cd8413970604b63" -> null
+          - volume_size           = 30 -> null
           - volume_type           = "gp3" -> null
             # (1 unchanged attribute hidden)
         }
     }
 
-  # aws_internet_gateway.gw will be destroyed
-  - resource "aws_internet_gateway" "gw" {
-      - arn      = "arn:aws:ec2:eu-west-1:711387121692:internet-gateway/igw-0f6ec3809a983759f" -> null
-      - id       = "igw-0f6ec3809a983759f" -> null
-      - owner_id = "711387121692" -> null
-      - region   = "eu-west-1" -> null
-      - tags     = {
-          - "Name" = "lab-dom04-igw"
-        } -> null
-      - tags_all = {
-          - "ManagedBy" = "Terraform"
-          - "Name"      = "lab-dom04-igw"
-          - "Project"   = "lab-dom03-IAC"
-        } -> null
-      - vpc_id   = "vpc-088b73bbddac713c2" -> null
-    }
-
-  # aws_key_pair.ec2_key_pair will be destroyed
-  - resource "aws_key_pair" "ec2_key_pair" {
-      - arn             = "arn:aws:ec2:eu-west-1:711387121692:key-pair/lab-dom04-public-key.pem" -> null
-      - fingerprint     = "18:f0:58:60:4e:a4:d2:9d:f5:45:e5:a1:a0:74:c0:e7" -> null
-      - id              = "lab-dom04-public-key.pem" -> null
-      - key_name        = "lab-dom04-public-key.pem" -> null
-      - key_pair_id     = "key-089c35d8c457bda06" -> null
-      - key_type        = "rsa" -> null
-      - public_key      = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDD4NXQ4qQ3szlRpml8URZI8ENrneDroZ0aWHm2321YMja2B1UulKORVFSMS9X19j1E+/r03Ba6l+qbibf7Xl7jbdYpcy/tr4KCLB87LgxZ4TQuMdJK0vHrW/g+/pPx7KnyHuYTnweb+1YpxksDt7TP9YkyMxtJti8S4wlCrW87dhNZhBe0fjb7cM8bAj9zye5mOmYorNcQ0wzf0Ft+PJSxoOFZPiLw6BNGZiUZx9OCeHfn5g8ExiAbFspitu8KlWA2lmvxTwmNdM0g5TuwzjyXCydNFqE2vZymYQjnbfrVXLlG11ldd2Wv5HYCopwhEudOjqLmWdtI7RDrnaUqrsM2nhqGDiCEa48Z8czBxRx+xj+j0PiFGsQtImr4qjPk7SrqEvnbxsUkLccQ25aie+krfb+CYjIOE41LnONZ0DXEy9RISW8Y5FIaTNEtoGxHyG2onFGlT/wym1+Hk7R21SIH7fyATYfHHqt3hJFkIQ/up6NmowsYApmuyfKTIsqiGqNK6NJGIrLnWTTo3AAw2Ouh/6seb4WyER8pUlIrddlkSrzaLEkRKpmYWSewKQb7jVnmQREKjC+y5LvYlDqxlRUaFRKgc7lqTcR7WkAtbMqGQg/zoPJMThDb4FUTje1iEq3vODP61bTUcEgMFA36bUKu0NvKJaJIo+Edl+MKPLASqQ==" -> null
-      - region          = "eu-west-1" -> null
-      - tags            = {} -> null
-      - tags_all        = {
-          - "ManagedBy" = "Terraform"
-          - "Project"   = "lab-dom03-IAC"
-        } -> null
-        # (1 unchanged attribute hidden)
-    }
-
-  # aws_route_table.rt will be destroyed
-  - resource "aws_route_table" "rt" {
-      - arn              = "arn:aws:ec2:eu-west-1:711387121692:route-table/rtb-03955303c87396d8a" -> null
-      - id               = "rtb-03955303c87396d8a" -> null
+  # module.route_table.aws_route_table.this will be destroyed
+  - resource "aws_route_table" "this" {
+      - arn              = "arn:aws:ec2:eu-west-1:711387121692:route-table/rtb-0245b436b0bbd28e8" -> null
+      - id               = "rtb-0245b436b0bbd28e8" -> null
       - owner_id         = "711387121692" -> null
       - propagating_vgws = [] -> null
       - region           = "eu-west-1" -> null
       - route            = [
           - {
-              - gateway_id                 = "igw-0f6ec3809a983759f"
-              - ipv6_cidr_block            = "::/0"
-                # (12 unchanged attributes hidden)
-            },
-          - {
               - cidr_block                 = "0.0.0.0/0"
-              - gateway_id                 = "igw-0f6ec3809a983759f"
+              - gateway_id                 = "igw-093e20255026433d9"
                 # (12 unchanged attributes hidden)
             },
         ] -> null
@@ -185,25 +144,26 @@ Terraform will perform the following actions:
           - "Name" = "lab-dom04-rt"
         } -> null
       - tags_all         = {
+          - "Category"  = "lab"
           - "ManagedBy" = "Terraform"
           - "Name"      = "lab-dom04-rt"
-          - "Project"   = "lab-dom03-IAC"
+          - "Project"   = "lab-dom04-IAC"
         } -> null
-      - vpc_id           = "vpc-088b73bbddac713c2" -> null
+      - vpc_id           = "vpc-0457cf83a0f84efe1" -> null
     }
 
-  # aws_route_table_association.rt_association will be destroyed
-  - resource "aws_route_table_association" "rt_association" {
-      - id             = "rtbassoc-07ec328638968544c" -> null
+  # module.route_table.aws_route_table_association.this["eu-west-1a"] will be destroyed
+  - resource "aws_route_table_association" "this" {
+      - id             = "rtbassoc-059055d1c9ad166b0" -> null
       - region         = "eu-west-1" -> null
-      - route_table_id = "rtb-03955303c87396d8a" -> null
-      - subnet_id      = "subnet-079cb33d77f42ac09" -> null
+      - route_table_id = "rtb-0245b436b0bbd28e8" -> null
+      - subnet_id      = "subnet-023a60b89ac4b354d" -> null
         # (1 unchanged attribute hidden)
     }
 
-  # aws_security_group.allow_tls will be destroyed
-  - resource "aws_security_group" "allow_tls" {
-      - arn                    = "arn:aws:ec2:eu-west-1:711387121692:security-group/sg-0c11743bf89e99c18" -> null
+  # module.security_group.aws_security_group.this will be destroyed
+  - resource "aws_security_group" "this" {
+      - arn                    = "arn:aws:ec2:eu-west-1:711387121692:security-group/sg-05cef581f9b7eb862" -> null
       - description            = "Allow SSH from and HTTP from anywhere; all outbound traffic allowed" -> null
       - egress                 = [
           - {
@@ -220,7 +180,7 @@ Terraform will perform the following actions:
               - to_port          = 0
             },
         ] -> null
-      - id                     = "sg-0c11743bf89e99c18" -> null
+      - id                     = "sg-05cef581f9b7eb862" -> null
       - ingress                = [
           - {
               - cidr_blocks      = [
@@ -257,26 +217,94 @@ Terraform will perform the following actions:
           - "Name" = "allow_tls_ssh"
         } -> null
       - tags_all               = {
+          - "Category"  = "lab"
           - "ManagedBy" = "Terraform"
           - "Name"      = "allow_tls_ssh"
-          - "Project"   = "lab-dom03-IAC"
+          - "Project"   = "lab-dom04-IAC"
         } -> null
-      - vpc_id                 = "vpc-088b73bbddac713c2" -> null
+      - vpc_id                 = "vpc-0457cf83a0f84efe1" -> null
         # (1 unchanged attribute hidden)
     }
 
-  # aws_subnet.public will be destroyed
-  - resource "aws_subnet" "public" {
-      - arn                                            = "arn:aws:ec2:eu-west-1:711387121692:subnet/subnet-079cb33d77f42ac09" -> null
+  # module.security_group.aws_vpc_security_group_egress_rule.this["all"] will be destroyed
+  - resource "aws_vpc_security_group_egress_rule" "this" {
+      - arn                    = "arn:aws:ec2:eu-west-1:711387121692:security-group-rule/sgr-0817c1f84175cf717" -> null
+      - cidr_ipv4              = "0.0.0.0/0" -> null
+      - description            = "allow all outbound" -> null
+      - id                     = "sgr-0817c1f84175cf717" -> null
+      - ip_protocol            = "-1" -> null
+      - region                 = "eu-west-1" -> null
+      - security_group_id      = "sg-05cef581f9b7eb862" -> null
+      - security_group_rule_id = "sgr-0817c1f84175cf717" -> null
+      - tags                   = {
+          - "Name" = "allow_tls_ssh-all"
+        } -> null
+      - tags_all               = {
+          - "Category"  = "lab"
+          - "ManagedBy" = "Terraform"
+          - "Name"      = "allow_tls_ssh-all"
+          - "Project"   = "lab-dom04-IAC"
+        } -> null
+    }
+
+  # module.security_group.aws_vpc_security_group_ingress_rule.this["http"] will be destroyed
+  - resource "aws_vpc_security_group_ingress_rule" "this" {
+      - arn                    = "arn:aws:ec2:eu-west-1:711387121692:security-group-rule/sgr-0a4ddda538eca5e9a" -> null
+      - cidr_ipv4              = "0.0.0.0/0" -> null
+      - description            = "HTTP from anywhere" -> null
+      - from_port              = 80 -> null
+      - id                     = "sgr-0a4ddda538eca5e9a" -> null
+      - ip_protocol            = "tcp" -> null
+      - region                 = "eu-west-1" -> null
+      - security_group_id      = "sg-05cef581f9b7eb862" -> null
+      - security_group_rule_id = "sgr-0a4ddda538eca5e9a" -> null
+      - tags                   = {
+          - "Name" = "allow_tls_ssh-http"
+        } -> null
+      - tags_all               = {
+          - "Category"  = "lab"
+          - "ManagedBy" = "Terraform"
+          - "Name"      = "allow_tls_ssh-http"
+          - "Project"   = "lab-dom04-IAC"
+        } -> null
+      - to_port                = 80 -> null
+    }
+
+  # module.security_group.aws_vpc_security_group_ingress_rule.this["ssh"] will be destroyed
+  - resource "aws_vpc_security_group_ingress_rule" "this" {
+      - arn                    = "arn:aws:ec2:eu-west-1:711387121692:security-group-rule/sgr-0315e96c4ecd28437" -> null
+      - cidr_ipv4              = "102.22.146.226/32" -> null
+      - description            = "SSH from allowed IP" -> null
+      - from_port              = 22 -> null
+      - id                     = "sgr-0315e96c4ecd28437" -> null
+      - ip_protocol            = "tcp" -> null
+      - region                 = "eu-west-1" -> null
+      - security_group_id      = "sg-05cef581f9b7eb862" -> null
+      - security_group_rule_id = "sgr-0315e96c4ecd28437" -> null
+      - tags                   = {
+          - "Name" = "allow_tls_ssh-ssh"
+        } -> null
+      - tags_all               = {
+          - "Category"  = "lab"
+          - "ManagedBy" = "Terraform"
+          - "Name"      = "allow_tls_ssh-ssh"
+          - "Project"   = "lab-dom04-IAC"
+        } -> null
+      - to_port                = 22 -> null
+    }
+
+  # module.subnet.aws_subnet.this["eu-west-1a"] will be destroyed
+  - resource "aws_subnet" "this" {
+      - arn                                            = "arn:aws:ec2:eu-west-1:711387121692:subnet/subnet-023a60b89ac4b354d" -> null
       - assign_ipv6_address_on_creation                = false -> null
-      - availability_zone                              = "eu-west-1c" -> null
-      - availability_zone_id                           = "euw1-az3" -> null
+      - availability_zone                              = "eu-west-1a" -> null
+      - availability_zone_id                           = "euw1-az1" -> null
       - cidr_block                                     = "10.0.1.0/24" -> null
       - enable_dns64                                   = false -> null
       - enable_lni_at_device_index                     = 0 -> null
       - enable_resource_name_dns_a_record_on_launch    = false -> null
       - enable_resource_name_dns_aaaa_record_on_launch = false -> null
-      - id                                             = "subnet-079cb33d77f42ac09" -> null
+      - id                                             = "subnet-023a60b89ac4b354d" -> null
       - ipv6_native                                    = false -> null
       - map_customer_owned_ip_on_launch                = false -> null
       - map_public_ip_on_launch                        = true -> null
@@ -284,196 +312,118 @@ Terraform will perform the following actions:
       - private_dns_hostname_type_on_launch            = "ip-name" -> null
       - region                                         = "eu-west-1" -> null
       - tags                                           = {
-          - "Name" = "lab-dom04-public-subnet"
+          - "Name" = "lab-dom04-public-subnet-eu-west-1a"
         } -> null
       - tags_all                                       = {
+          - "Category"  = "lab"
           - "ManagedBy" = "Terraform"
-          - "Name"      = "lab-dom04-public-subnet"
-          - "Project"   = "lab-dom03-IAC"
+          - "Name"      = "lab-dom04-public-subnet-eu-west-1a"
+          - "Project"   = "lab-dom04-IAC"
         } -> null
-      - vpc_id                                         = "vpc-088b73bbddac713c2" -> null
+      - vpc_id                                         = "vpc-0457cf83a0f84efe1" -> null
         # (4 unchanged attributes hidden)
     }
 
-  # aws_vpc.main will be destroyed
+  # module.vpc.aws_internet_gateway.this["this"] will be destroyed
+  - resource "aws_internet_gateway" "this" {
+      - arn      = "arn:aws:ec2:eu-west-1:711387121692:internet-gateway/igw-093e20255026433d9" -> null
+      - id       = "igw-093e20255026433d9" -> null
+      - owner_id = "711387121692" -> null
+      - region   = "eu-west-1" -> null
+      - tags     = {
+          - "Name" = "lab-dom04-vpc-igw"
+        } -> null
+      - tags_all = {
+          - "Category"  = "lab"
+          - "ManagedBy" = "Terraform"
+          - "Name"      = "lab-dom04-vpc-igw"
+          - "Project"   = "lab-dom04-IAC"
+        } -> null
+      - vpc_id   = "vpc-0457cf83a0f84efe1" -> null
+    }
+
+  # module.vpc.aws_vpc.main will be destroyed
   - resource "aws_vpc" "main" {
-      - arn                                  = "arn:aws:ec2:eu-west-1:711387121692:vpc/vpc-088b73bbddac713c2" -> null
+      - arn                                  = "arn:aws:ec2:eu-west-1:711387121692:vpc/vpc-0457cf83a0f84efe1" -> null
       - assign_generated_ipv6_cidr_block     = false -> null
       - cidr_block                           = "10.0.0.0/16" -> null
-      - default_network_acl_id               = "acl-0dc1ab4072eceb4a6" -> null
-      - default_route_table_id               = "rtb-04c0aa0063b4c4ef2" -> null
-      - default_security_group_id            = "sg-0199de01813046d75" -> null
+      - default_network_acl_id               = "acl-04119d7256ae63964" -> null
+      - default_route_table_id               = "rtb-0a9bca6d3615c38ca" -> null
+      - default_security_group_id            = "sg-0ccbe9a94b7c7f0ad" -> null
       - dhcp_options_id                      = "dopt-0e258470d7526eec0" -> null
-      - enable_dns_hostnames                 = false -> null
+      - enable_dns_hostnames                 = true -> null
       - enable_dns_support                   = true -> null
       - enable_network_address_usage_metrics = false -> null
-      - id                                   = "vpc-088b73bbddac713c2" -> null
+      - id                                   = "vpc-0457cf83a0f84efe1" -> null
       - instance_tenancy                     = "default" -> null
       - ipv6_netmask_length                  = 0 -> null
-      - main_route_table_id                  = "rtb-04c0aa0063b4c4ef2" -> null
+      - main_route_table_id                  = "rtb-0a9bca6d3615c38ca" -> null
       - owner_id                             = "711387121692" -> null
       - region                               = "eu-west-1" -> null
       - tags                                 = {
           - "Name" = "lab-dom04-vpc"
         } -> null
       - tags_all                             = {
+          - "Category"  = "lab"
           - "ManagedBy" = "Terraform"
           - "Name"      = "lab-dom04-vpc"
-          - "Project"   = "lab-dom03-IAC"
+          - "Project"   = "lab-dom04-IAC"
         } -> null
         # (4 unchanged attributes hidden)
     }
 
-  # aws_vpc_security_group_egress_rule.all will be destroyed
-  - resource "aws_vpc_security_group_egress_rule" "all" {
-      - arn                    = "arn:aws:ec2:eu-west-1:711387121692:security-group-rule/sgr-05c6501a0a9583f40" -> null
-      - cidr_ipv4              = "0.0.0.0/0" -> null
-      - description            = "allow all outbound" -> null
-      - id                     = "sgr-05c6501a0a9583f40" -> null
-      - ip_protocol            = "-1" -> null
-      - region                 = "eu-west-1" -> null
-      - security_group_id      = "sg-0c11743bf89e99c18" -> null
-      - security_group_rule_id = "sgr-05c6501a0a9583f40" -> null
-      - tags_all               = {
-          - "ManagedBy" = "Terraform"
-          - "Project"   = "lab-dom03-IAC"
-        } -> null
-    }
-
-  # aws_vpc_security_group_ingress_rule.http will be destroyed
-  - resource "aws_vpc_security_group_ingress_rule" "http" {
-      - arn                    = "arn:aws:ec2:eu-west-1:711387121692:security-group-rule/sgr-0310f434d5f5c630b" -> null
-      - cidr_ipv4              = "0.0.0.0/0" -> null
-      - description            = "HTTP from anywhere" -> null
-      - from_port              = 80 -> null
-      - id                     = "sgr-0310f434d5f5c630b" -> null
-      - ip_protocol            = "tcp" -> null
-      - region                 = "eu-west-1" -> null
-      - security_group_id      = "sg-0c11743bf89e99c18" -> null
-      - security_group_rule_id = "sgr-0310f434d5f5c630b" -> null
-      - tags_all               = {
-          - "ManagedBy" = "Terraform"
-          - "Project"   = "lab-dom03-IAC"
-        } -> null
-      - to_port                = 80 -> null
-    }
-
-  # aws_vpc_security_group_ingress_rule.ssh will be destroyed
-  - resource "aws_vpc_security_group_ingress_rule" "ssh" {
-      - arn                    = "arn:aws:ec2:eu-west-1:711387121692:security-group-rule/sgr-0f17501cdfbc8c14d" -> null
-      - cidr_ipv4              = "102.22.146.226/32" -> null
-      - description            = "SSH from allowed IP" -> null
-      - from_port              = 22 -> null
-      - id                     = "sgr-0f17501cdfbc8c14d" -> null
-      - ip_protocol            = "tcp" -> null
-      - region                 = "eu-west-1" -> null
-      - security_group_id      = "sg-0c11743bf89e99c18" -> null
-      - security_group_rule_id = "sgr-0f17501cdfbc8c14d" -> null
-      - tags_all               = {
-          - "ManagedBy" = "Terraform"
-          - "Project"   = "lab-dom03-IAC"
-        } -> null
-      - to_port                = 22 -> null
-    }
-
-  # local_sensitive_file.private_key will be destroyed
-  - resource "local_sensitive_file" "private_key" {
-      - content              = (sensitive value) -> null
-      - content_base64sha256 = "23r2H4NaNLrXyMzCtPyTuRF8KHvrsv14ypo2hj4IXVg=" -> null
-      - content_base64sha512 = "cj3n0e6hSTpn9cO18VFKgOLgg4wgbCkrZr4Kign6AO5g6mI6im2TDokFxm37z4+TU9GnOaTuWU/ka9xT4cbz3Q==" -> null
-      - content_md5          = "4eeaf73ab3816370538a73d9504dfe0e" -> null
-      - content_sha1         = "750a16da81953ccc8f6886c055dedc1eec637b38" -> null
-      - content_sha256       = "db7af61f835a34bad7c8ccc2b4fc93b9117c287bebb2fd78ca9a36863e085d58" -> null
-      - content_sha512       = "723de7d1eea1493a67f5c3b5f1514a80e2e0838c206c292b66be0a8a09fa00ee60ea623a8a6d930e8905c66dfbcf8f9353d1a739a4ee594fe46bdc53e1c6f3dd" -> null
-      - directory_permission = "0700" -> null
-      - file_permission      = "0700" -> null
-      - filename             = "./lab-dom04-private-key.pem" -> null
-      - id                   = "750a16da81953ccc8f6886c055dedc1eec637b38" -> null
-    }
-
-  # tls_private_key.ec2_key_pair will be destroyed
-  - resource "tls_private_key" "ec2_key_pair" {
-      - algorithm                     = "RSA" -> null
-      - ecdsa_curve                   = "P224" -> null
-      - id                            = "dfb7635f321294694f1e9f23989c3fe7abe1261a" -> null
-      - private_key_openssh           = (sensitive value) -> null
-      - private_key_pem               = (sensitive value) -> null
-      - private_key_pem_pkcs8         = (sensitive value) -> null
-      - public_key_fingerprint_md5    = "ac:a6:4d:0f:fe:c6:5b:e3:bc:39:66:c0:ea:cb:56:2c" -> null
-      - public_key_fingerprint_sha256 = "SHA256:IR2TGrMgS1A+84fVNhR6/8NHGH+5HUWOJXLcF6FDwqc" -> null
-      - public_key_openssh            = <<-EOT
-            ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDD4NXQ4qQ3szlRpml8URZI8ENrneDroZ0aWHm2321YMja2B1UulKORVFSMS9X19j1E+/r03Ba6l+qbibf7Xl7jbdYpcy/tr4KCLB87LgxZ4TQuMdJK0vHrW/g+/pPx7KnyHuYTnweb+1YpxksDt7TP9YkyMxtJti8S4wlCrW87dhNZhBe0fjb7cM8bAj9zye5mOmYorNcQ0wzf0Ft+PJSxoOFZPiLw6BNGZiUZx9OCeHfn5g8ExiAbFspitu8KlWA2lmvxTwmNdM0g5TuwzjyXCydNFqE2vZymYQjnbfrVXLlG11ldd2Wv5HYCopwhEudOjqLmWdtI7RDrnaUqrsM2nhqGDiCEa48Z8czBxRx+xj+j0PiFGsQtImr4qjPk7SrqEvnbxsUkLccQ25aie+krfb+CYjIOE41LnONZ0DXEy9RISW8Y5FIaTNEtoGxHyG2onFGlT/wym1+Hk7R21SIH7fyATYfHHqt3hJFkIQ/up6NmowsYApmuyfKTIsqiGqNK6NJGIrLnWTTo3AAw2Ouh/6seb4WyER8pUlIrddlkSrzaLEkRKpmYWSewKQb7jVnmQREKjC+y5LvYlDqxlRUaFRKgc7lqTcR7WkAtbMqGQg/zoPJMThDb4FUTje1iEq3vODP61bTUcEgMFA36bUKu0NvKJaJIo+Edl+MKPLASqQ==
-        EOT -> null
-      - public_key_pem                = <<-EOT
-            -----BEGIN PUBLIC KEY-----
-            MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAw+DV0OKkN7M5UaZpfFEW
-            SPBDa53g66GdGlh5tt9tWDI2tgdVLpSjkVRUjEvV9fY9RPv69NwWupfqm4m3+15e
-            423WKXMv7a+CgiwfOy4MWeE0LjHSStLx61v4Pv6T8eyp8h7mE58Hm/tWKcZLA7e0
-            z/WJMjMbSbYvEuMJQq1vO3YTWYQXtH42+3DPGwI/c8nuZjpmKKzXENMM39BbfjyU
-            saDhWT4i8OgTRmYlGcfTgnh35+YPBMYgGxbKYrbvCpVgNpZr8U8JjXTNIOU7sM48
-            lwsnTRahNr2cpmEI52361Vy5RtdZXXdlr+R2AqKcIRLnTo6i5lnbSO0Q652lKq7D
-            Np4ahg4ghGuPGfHMwcUcfsY/o9D4hRrELSJq+Koz5O0q6hL528bFJC3HENuWonvp
-            K32/gmIyDhONS5zjWdA1xMvUSElvGORSGkzRLaBsR8htqJxRpU/8Mptfh5O0dtUi
-            B+38gE2Hxx6rd4SRZCEP7qejZqMLGAKZrsnykyLKohqjSujSRiKy51k06NwAMNjr
-            of+rHm+FshEfKVJSK3XZZEq82ixJESqZmFknsCkG+41Z5kERCowvsuS72JQ6sZUV
-            GhUSoHO5ak3Ee1pALWzKhkIP86DyTE4Q2+BVE43tYhKt7zgz+tW01HBIDBQN+m1C
-            rtDbyiWiSKPhHZfjCjywEqkCAwEAAQ==
-            -----END PUBLIC KEY-----
-        EOT -> null
-      - rsa_bits                      = 4096 -> null
-    }
-
-Plan: 0 to add, 0 to change, 13 to destroy.
+Plan: 0 to add, 0 to change, 10 to destroy.
 
 Changes to Outputs:
-  - instance_id         = "i-0a9894b08370a3802" -> null
-  - instance_public_dns = "" -> null
-  - instance_public_ip  = "54.171.86.70" -> null
-  - key_pair_name       = "lab-dom04-public-key.pem" -> null
-  - private_key_path    = "./lab-dom04-private-key.pem" -> null
-  - public_subnet_id    = "subnet-079cb33d77f42ac09" -> null
-  - security_group_id   = "sg-0c11743bf89e99c18" -> null
+  - instance_id         = "i-0ed5bf9a246f83c71" -> null
+  - instance_public_dns = "ec2-54-220-240-203.eu-west-1.compute.amazonaws.com" -> null
+  - instance_public_ip  = "54.220.240.203" -> null
+  - key_pair_name       = "lab-public-key.pem" -> null
+  - private_key_path    = "./lab-private-key.pem" -> null
+  - public_subnet_id    = "subnet-023a60b89ac4b354d" -> null
+  - security_group_id   = "sg-05cef581f9b7eb862" -> null
   - ssh_user            = "ec2-user" -> null
-  - vpc_id              = "vpc-088b73bbddac713c2" -> null
+  - vpc_id              = "vpc-0457cf83a0f84efe1" -> null
 
 Do you really want to destroy all resources?
   Terraform will destroy all your managed infrastructure, as shown above.
   There is no undo. Only 'yes' will be accepted to confirm.
 
   Enter a value: 
-local_sensitive_file.private_key: Destroying... [id=750a16da81953ccc8f6886c055dedc1eec637b38]
-local_sensitive_file.private_key: Destruction complete after 0s
-aws_route_table_association.rt_association: Destroying... [id=rtbassoc-07ec328638968544c]
-aws_vpc_security_group_egress_rule.all: Destroying... [id=sgr-05c6501a0a9583f40]
-aws_vpc_security_group_ingress_rule.http: Destroying... [id=sgr-0310f434d5f5c630b]
-aws_vpc_security_group_ingress_rule.ssh: Destroying... [id=sgr-0f17501cdfbc8c14d]
-aws_instance.web: Destroying... [id=i-0a9894b08370a3802]
-aws_vpc_security_group_ingress_rule.http: Destruction complete after 1s
-aws_vpc_security_group_ingress_rule.ssh: Destruction complete after 1s
-aws_vpc_security_group_egress_rule.all: Destruction complete after 1s
-aws_route_table_association.rt_association: Destruction complete after 1s
-aws_route_table.rt: Destroying... [id=rtb-03955303c87396d8a]
-aws_route_table.rt: Destruction complete after 1s
-aws_internet_gateway.gw: Destroying... [id=igw-0f6ec3809a983759f]
-aws_instance.web: Still destroying... [id=i-0a9894b08370a3802, 00m10s elapsed]
-aws_internet_gateway.gw: Still destroying... [id=igw-0f6ec3809a983759f, 00m10s elapsed]
-aws_instance.web: Still destroying... [id=i-0a9894b08370a3802, 00m20s elapsed]
-aws_internet_gateway.gw: Still destroying... [id=igw-0f6ec3809a983759f, 00m20s elapsed]
-aws_instance.web: Still destroying... [id=i-0a9894b08370a3802, 00m30s elapsed]
-aws_internet_gateway.gw: Still destroying... [id=igw-0f6ec3809a983759f, 00m30s elapsed]
-aws_instance.web: Still destroying... [id=i-0a9894b08370a3802, 00m40s elapsed]
-aws_internet_gateway.gw: Destruction complete after 40s
-aws_instance.web: Destruction complete after 43s
-aws_subnet.public: Destroying... [id=subnet-079cb33d77f42ac09]
-aws_key_pair.ec2_key_pair: Destroying... [id=lab-dom04-public-key.pem]
-aws_security_group.allow_tls: Destroying... [id=sg-0c11743bf89e99c18]
-aws_key_pair.ec2_key_pair: Destruction complete after 1s
-tls_private_key.ec2_key_pair: Destroying... [id=dfb7635f321294694f1e9f23989c3fe7abe1261a]
-tls_private_key.ec2_key_pair: Destruction complete after 0s
-aws_subnet.public: Destruction complete after 2s
-aws_security_group.allow_tls: Destruction complete after 2s
-aws_vpc.main: Destroying... [id=vpc-088b73bbddac713c2]
-aws_vpc.main: Destruction complete after 1s
+module.route_table.aws_route_table_association.this["eu-west-1a"]: Destroying... [id=rtbassoc-059055d1c9ad166b0]
+module.security_group.aws_vpc_security_group_egress_rule.this["all"]: Destroying... [id=sgr-0817c1f84175cf717]
+module.ec2.aws_instance.this: Destroying... [id=i-0ed5bf9a246f83c71]
+module.security_group.aws_vpc_security_group_ingress_rule.this["ssh"]: Destroying... [id=sgr-0315e96c4ecd28437]
+module.security_group.aws_vpc_security_group_ingress_rule.this["http"]: Destroying... [id=sgr-0a4ddda538eca5e9a]
+module.security_group.aws_vpc_security_group_egress_rule.this["all"]: Destruction complete after 1s
+module.security_group.aws_vpc_security_group_ingress_rule.this["http"]: Destruction complete after 1s
+module.security_group.aws_vpc_security_group_ingress_rule.this["ssh"]: Destruction complete after 1s
+module.route_table.aws_route_table_association.this["eu-west-1a"]: Destruction complete after 1s
+module.route_table.aws_route_table.this: Destroying... [id=rtb-0245b436b0bbd28e8]
+module.route_table.aws_route_table.this: Destruction complete after 1s
+module.vpc.aws_internet_gateway.this["this"]: Destroying... [id=igw-093e20255026433d9]
+module.ec2.aws_instance.this: Still destroying... [id=i-0ed5bf9a246f83c71, 00m10s elapsed]
+module.vpc.aws_internet_gateway.this["this"]: Still destroying... [id=igw-093e20255026433d9, 00m10s elapsed]
+module.ec2.aws_instance.this: Still destroying... [id=i-0ed5bf9a246f83c71, 00m20s elapsed]
+module.vpc.aws_internet_gateway.this["this"]: Still destroying... [id=igw-093e20255026433d9, 00m20s elapsed]
+module.ec2.aws_instance.this: Still destroying... [id=i-0ed5bf9a246f83c71, 00m30s elapsed]
+module.vpc.aws_internet_gateway.this["this"]: Still destroying... [id=igw-093e20255026433d9, 00m30s elapsed]
+module.ec2.aws_instance.this: Still destroying... [id=i-0ed5bf9a246f83c71, 00m40s elapsed]
+module.vpc.aws_internet_gateway.this["this"]: Still destroying... [id=igw-093e20255026433d9, 00m40s elapsed]
+module.ec2.aws_instance.this: Still destroying... [id=i-0ed5bf9a246f83c71, 00m50s elapsed]
+module.vpc.aws_internet_gateway.this["this"]: Still destroying... [id=igw-093e20255026433d9, 00m50s elapsed]
+module.ec2.aws_instance.this: Still destroying... [id=i-0ed5bf9a246f83c71, 01m00s elapsed]
+module.vpc.aws_internet_gateway.this["this"]: Still destroying... [id=igw-093e20255026433d9, 01m00s elapsed]
+module.ec2.aws_instance.this: Still destroying... [id=i-0ed5bf9a246f83c71, 01m10s elapsed]
+module.vpc.aws_internet_gateway.this["this"]: Still destroying... [id=igw-093e20255026433d9, 01m10s elapsed]
+module.vpc.aws_internet_gateway.this["this"]: Destruction complete after 1m11s
+module.ec2.aws_instance.this: Destruction complete after 1m16s
+module.subnet.aws_subnet.this["eu-west-1a"]: Destroying... [id=subnet-023a60b89ac4b354d]
+module.security_group.aws_security_group.this: Destroying... [id=sg-05cef581f9b7eb862]
+module.subnet.aws_subnet.this["eu-west-1a"]: Destruction complete after 1s
+module.security_group.aws_security_group.this: Destruction complete after 1s
+module.vpc.aws_vpc.main: Destroying... [id=vpc-0457cf83a0f84efe1]
+module.vpc.aws_vpc.main: Destruction complete after 1s
 Releasing state lock. This may take a few moments...
 
-Destroy complete! Resources: 13 destroyed.
+Destroy complete! Resources: 10 destroyed.

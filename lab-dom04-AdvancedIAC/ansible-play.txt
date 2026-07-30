@@ -1,62 +1,41 @@
 
-PLAY [Deploy containerized server details site behind Nginx reverse proxy] *****
+PLAY [Deploy static site served directly by Nginx] *****************************
 
 TASK [Gathering Facts] *********************************************************
-ok: [54.171.86.70]
+ok: [ec2-54-220-240-203.eu-west-1.compute.amazonaws.com]
 
 TASK [nginx : Debug OS family] *************************************************
-ok: [54.171.86.70] => {
+ok: [ec2-54-220-240-203.eu-west-1.compute.amazonaws.com] => {
     "ansible_facts['os_family']": "RedHat"
 }
 
 TASK [nginx : Load OS-family-specific variables (falls back to role defaults if none exist)] ***
-ok: [54.171.86.70] => (item=/home/gabby/Projects/amalitech/lab-dom04-AdvancedIAC/configuration/roles/nginx/vars/RedHat.yml)
+ok: [ec2-54-220-240-203.eu-west-1.compute.amazonaws.com] => (item=/home/gabby/Projects/amalitech/lab-dom04-AdvancedIAC/configuration/roles/nginx/vars/RedHat.yml)
 
 TASK [nginx : Ensure nginx is installed] ***************************************
-changed: [54.171.86.70]
+changed: [ec2-54-220-240-203.eu-west-1.compute.amazonaws.com]
 
 TASK [nginx : Remove default Nginx server block] *******************************
-ok: [54.171.86.70]
+ok: [ec2-54-220-240-203.eu-west-1.compute.amazonaws.com]
 
 TASK [nginx : Deploy Nginx reverse proxy configuration] ************************
-changed: [54.171.86.70]
+changed: [ec2-54-220-240-203.eu-west-1.compute.amazonaws.com]
 
 TASK [nginx : Validate full Nginx configuration] *******************************
-ok: [54.171.86.70]
+ok: [ec2-54-220-240-203.eu-west-1.compute.amazonaws.com]
 
 TASK [nginx : Enable site via sites-enabled symlink] ***************************
-skipping: [54.171.86.70]
+skipping: [ec2-54-220-240-203.eu-west-1.compute.amazonaws.com]
 
 TASK [nginx : Ensure nginx is started and enabled] *****************************
-changed: [54.171.86.70]
+changed: [ec2-54-220-240-203.eu-west-1.compute.amazonaws.com]
 
-TASK [docker : Load OS-family-specific variables (falls back to role defaults if none exist)] ***
-ok: [54.171.86.70] => (item=/home/gabby/Projects/amalitech/lab-dom04-AdvancedIAC/configuration/roles/docker/vars/RedHat.yml)
-
-TASK [docker : Ensure Docker is installed] *************************************
-changed: [54.171.86.70]
-
-TASK [docker : Ensure Docker is started and enabled] ***************************
-changed: [54.171.86.70]
-
-TASK [docker : Ensure Docker CLI plugins directory exists] *********************
-changed: [54.171.86.70]
-
-TASK [docker : Install Docker Compose plugin] **********************************
-changed: [54.171.86.70]
-
-TASK [Ensure app directory exists] *********************************************
-changed: [54.171.86.70]
-
-TASK [Deploy Docker Compose file] **********************************************
-changed: [54.171.86.70]
-
-TASK [Start application via Docker Compose] ************************************
-changed: [54.171.86.70]
+TASK [Deploy static site content] **********************************************
+changed: [ec2-54-220-240-203.eu-west-1.compute.amazonaws.com]
 
 RUNNING HANDLER [nginx : Reload nginx] *****************************************
-changed: [54.171.86.70]
+changed: [ec2-54-220-240-203.eu-west-1.compute.amazonaws.com]
 
 PLAY RECAP *********************************************************************
-54.171.86.70               : ok=17   changed=11   unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
+ec2-54-220-240-203.eu-west-1.compute.amazonaws.com : ok=10   changed=5    unreachable=0    failed=0    skipped=1    rescued=0    ignored=0   
 
