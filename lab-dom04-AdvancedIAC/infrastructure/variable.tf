@@ -66,17 +66,6 @@ variable "http_allowed_cidr" {
   default     = "0.0.0.0/0"
 }
 
-# EC2 key pair configuration
-variable "private_key_pair_name" {
-  default = "lab-dom04-private-key.pem"
-  type    = string
-}
-
-variable "key_pair_name" {
-  default = "lab-dom04-public-key.pem"
-  type    = string
-}
-
 # EC2 instance configuration
 variable "instance_type" {
   type        = string

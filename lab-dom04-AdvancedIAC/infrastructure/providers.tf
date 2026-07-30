@@ -4,16 +4,6 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 6.0"
     }
-
-    tls = {
-      source  = "hashicorp/tls"
-      version = "~> 4.0"
-    }
-
-    local = {
-      source  = "hashicorp/local"
-      version = "~> 2.0"
-    }
   }
 
   backend "s3" {
@@ -31,7 +21,8 @@ provider "aws" {
 
   default_tags {
     tags = {
-      Project   = "lab-dom03-IAC"
+      Project   = "lab-dom04-IAC"
+      Category = "lab"
       ManagedBy = "Terraform"
     }
   }
