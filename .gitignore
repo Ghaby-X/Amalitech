@@ -38,3 +38,4 @@ lab-ntech02-AppliedAIAndPromptEngineering/ai-driven-data-insights-report/data/
 lab-ntech02-AppliedAIAndPromptEngineering/multistage-ai-workflow/combined.html
 lab-ntech02-AppliedAIAndPromptEngineering/multistage-ai-workflow/*.pdf
 lab-ntech02-AppliedAIAndPromptEngineering/multistage-ai-workflow/build_pdf.py
+lab-ntech04-cybersecurity/**/*.pdf
