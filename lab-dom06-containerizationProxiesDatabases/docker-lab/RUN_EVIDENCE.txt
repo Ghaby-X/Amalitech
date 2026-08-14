@@ -1,0 +1,42 @@
+--- docker --version / docker compose version ---
+Docker version 29.5.2, build 79eb04c
+Docker Compose version v5.1.4
+
+--- docker build -t flask-app . ---
+sha256:57f486583836d9acc37c494f69065d8d44fa3c0542430a76d1f0f66367b187a1
+
+--- docker run -d -p 5000:5000 flask-app ---
+3a7fd5bb57551418ce6baeed62c76d9fc646ad88f3bd87eaba9c66afc3fd0222
+
+--- docker ps ---
+NAMES          IMAGE          PORTS                                         STATUS
+nervous_ride   42ed43b3aff9   0.0.0.0:5000->5000/tcp, [::]:5000->5000/tcp   Up 21 minutes
+
+--- curl -v http://localhost:5000 ---
+* Host localhost:5000 was resolved.
+* IPv6: ::1
+* IPv4: 127.0.0.1
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0*   Trying [::1]:5000...
+* Connected to localhost (::1) port 5000
+* using HTTP/1.x
+> GET / HTTP/1.1
+> Host: localhost:5000
+> User-Agent: curl/8.15.0
+> Accept: */*
+> 
+* Request completely sent off
+< HTTP/1.1 200 OK
+< Server: Werkzeug/3.1.8 Python/3.9.25
+< Date: Fri, 14 Aug 2026 06:39:07 GMT
+< Content-Type: text/html; charset=utf-8
+< Content-Length: 18
+< Connection: close
+< 
+{ [18 bytes data]
+100    18  100    18    0     0   4073      0 --:--:-- --:--:-- --:--:--  4500
+* shutting down connection #0
+Hello from Docker!
+--- docker rm -f flask-app ---
+flask-app
