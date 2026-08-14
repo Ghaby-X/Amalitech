@@ -1,0 +1,91 @@
+- name: Deploy the Flask + MySQL app via Docker Compose, served through nginx
+  hosts: lab_dom06
+  become: true
+
+  vars:
+    app_dir: /opt/multi-container-app
+    aws_secret_name: lab-dom06/db-credentials
+    aws_region: eu-west-1
+    mysql_database: appdb
+    mysql_user: appuser
+    app_port: 5000
+    http_port: 80
+    domain_name: _
+    nginx_template: "{{ playbook_dir }}/templates/nginx-reverse-proxy.conf.j2"
+    nginx_site_conf_path: /etc/nginx/conf.d/multi-container-app.conf
+
+  roles:
+    - docker
+    - nginx
+
+  tasks:
+    - name: Ensure app directory exists
+      ansible.builtin.file:
+        path: "{{ app_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Copy docker-compose.yml
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../docker-compose.yml"
+        dest: "{{ app_dir }}/docker-compose.yml"
+        mode: '0644'
+
+    - name: Copy web/ application code
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../web/"
+        dest: "{{ app_dir }}/web/"
+        mode: '0644'
+
+    - name: Copy db/ init script
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../db/"
+        dest: "{{ app_dir }}/db/"
+        mode: '0644'
+
+    - name: Fetch DB credentials from Secrets Manager
+      ansible.builtin.command:
+        cmd: >
+          aws secretsmanager get-secret-value
+          --secret-id {{ aws_secret_name }}
+          --region {{ aws_region }}
+          --query SecretString --output text
+      register: db_secret_raw
+      changed_when: false
+      no_log: true
+
+    - name: Parse secret JSON
+      ansible.builtin.set_fact:
+        db_secret: "{{ db_secret_raw.stdout | from_json }}"
+      no_log: true
+
+    - name: Render .env on the instance
+      ansible.builtin.template:
+        src: templates/env.j2
+        dest: "{{ app_dir }}/.env"
+        mode: '0600'
+      no_log: true
+
+    - name: Bring the stack up
+      ansible.builtin.command:
+        cmd: docker compose up -d --build
+        chdir: "{{ app_dir }}"
+
+    - name: Wait for the app container to answer on 127.0.0.1:{{ app_port }}
+      ansible.builtin.wait_for:
+        host: 127.0.0.1
+        port: "{{ app_port }}"
+        timeout: 60
+
+    - name: Verify the app responds through nginx
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:{{ http_port }}/health"
+        return_content: true
+      register: health_check
+      retries: 5
+      delay: 5
+      until: health_check.status == 200
+
+    - name: Show health check result
+      ansible.builtin.debug:
+        var: health_check.json

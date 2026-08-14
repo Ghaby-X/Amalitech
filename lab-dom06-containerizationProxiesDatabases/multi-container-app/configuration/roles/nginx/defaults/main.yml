@@ -1,0 +1,11 @@
+---
+nginx_service_state: started
+nginx_service_enabled: true
+nginx_package_update_cache: true
+
+# Fallback layout (RedHat-style conf.d), used when no os_family-specific
+# vars file exists for the target host.
+nginx_package_name: nginx
+nginx_default_conf_path: /etc/nginx/conf.d/default.conf
+nginx_needs_enabled_symlink: false
+nginx_site_conf_link_path: ""
