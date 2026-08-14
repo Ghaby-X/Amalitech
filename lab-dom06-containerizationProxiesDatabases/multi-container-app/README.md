@@ -8,26 +8,11 @@ A two-tier Flask + MySQL app, deployed with Docker Compose behind nginx, on an E
 
 ## Architecture
 
-```
-Internet
-   │  :80
-   ▼
-┌─────────────────────── EC2 (Amazon Linux 2023) ───────────────────────┐
-│                                                                        │
-│  nginx (host package, Ansible role)                                  │
-│    reverse-proxies :80 → 127.0.0.1:5000                              │
-│         │                                                             │
-│         ▼                                                             │
-│  ┌─────────────────── Docker Compose ───────────────────┐            │
-│  │  web (Flask)  127.0.0.1:5000 only  ──►  db (MySQL 8)  │            │
-│  └────────────────────────────────────────────────────────┘         │
-│                                                                        │
-│  web fetches its DB password from Secrets Manager via the            │
-│  instance's IAM role (no credentials stored on disk)                 │
-└────────────────────────────────────────────────────────────────────────┘
-```
+![Architecture diagram](./architecture.png)
 
-`web` is never exposed outside the instance directly - only nginx is reachable from the internet, on port 80. `db` isn't exposed at all, even to the host.
+Terraform provisions the VPC, public subnet, security group, EC2 instance, and Secrets Manager secret (state in an S3 backend). Ansible then connects over SSH as root and runs `site.yml`, which applies the `nginx` and `docker` roles and deploys the app.
+
+On the instance itself: nginx (host package) reverse-proxies port 80 to `web`, which is bound to `127.0.0.1:5000` only - not reachable from outside the instance directly. `web` talks to `db` (MySQL 8) over the Docker Compose network; `db` isn't exposed to the host at all. `web` fetches its DB password from Secrets Manager via the instance's IAM role - no credentials stored on disk.
 
 ## Structure
 
