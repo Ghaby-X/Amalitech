@@ -1,0 +1,5 @@
+---
+# Amazon Linux 2023: single conf.d directory, no enabled/available split.
+nginx_default_conf_path: /etc/nginx/conf.d/default.conf
+nginx_needs_enabled_symlink: false
+nginx_site_conf_link_path: ""
