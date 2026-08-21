@@ -13,6 +13,8 @@ Security groups:
 - Jenkins SG: SSH (22) and the Jenkins web UI (8080), both restricted to `ssh_allowed_cidr` / `jenkins_ui_allowed_cidr`.
 - Deploy SG: SSH (22) from `ssh_allowed_cidr` **and** from the Jenkins SG directly (so the pipeline's Deploy stage can always reach it, regardless of your own IP), plus the app port (3000) open to `app_allowed_cidr` for verifying accessibility.
 
+![Architecture diagram](architecture-diagram.png)
+
 ## Structure
 
 ```
@@ -46,7 +48,7 @@ Useful outputs after apply:
 
 ```bash
 terraform output jenkins_url          # http://<jenkins-dns>:8080
-terraform output deploy_public_ip     # the Jenkinsfile's DEPLOY_HOST parameter
+terraform output deploy_public_ip     # set as the DEPLOY_HOST Global property in Jenkins
 terraform output app_url              # http://<deploy-dns>:3000
 terraform output ssh_user             # ec2-user
 terraform output private_key_path
@@ -70,13 +72,17 @@ terraform output private_key_path
    | `ec2_ssh` | SSH Username with private key | Contents of the deploy target's private key (`terraform output private_key_path`) |
 
 5. New Item → Pipeline. Under Pipeline, set Definition to "Pipeline script from SCM", SCM = Git, Repository URL = `https://github.com/Ghaby-X/server_details.git`, Script Path = `Jenkinsfile` (default).
-6. Build with Parameters:
+6. **Global properties** (Manage Jenkins → System → Environment variables) - set once, applied to every build (the Jenkinsfile has no `parameters` block; it reads these directly as `$DEPLOY_HOST` / `$IMAGE_NAME`):
    - `DEPLOY_HOST` = `terraform output deploy_public_ip`
-   - `IMAGE_NAME` = your Docker Hub repo, e.g. `yourdockerhubuser/lab-dom07-server-details`
+   - `IMAGE_NAME` = your Docker Hub repo, e.g. `ghaby/lab-dom07-server-details`
 
 ## Verifying a run
 
-A successful build goes Checkout → Install & Build → Test → Docker Build → Push Image → Deploy → Verify → Cleanup. After it completes:
+A successful build goes Checkout → Install & Build → Test → Docker Build → Push Image → Deploy → Verify → Cleanup:
+
+![Jenkins pipeline stages](jenkins_pipeline.png)
+
+After it completes:
 
 ```bash
 curl http://<deploy_public_ip>:3000/api/server-info
