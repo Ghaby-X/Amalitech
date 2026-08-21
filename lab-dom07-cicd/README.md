@@ -1,6 +1,6 @@
 # lab-dom07-cicd
 
-Terraform-provisioned infrastructure for a Jenkins CI/CD pipeline: a Jenkins host and a separate EC2 deploy target, on Amazon Linux 2023. The pipeline itself (Jenkinsfile, app, tests, Dockerfile) lives in `lab-dom07-server-details` - a standalone repo, built independently of this monorepo.
+Terraform-provisioned infrastructure for a Jenkins CI/CD pipeline: a Jenkins host and a separate EC2 deploy target, on Amazon Linux 2023. The pipeline itself (Jenkinsfile, app, tests, Dockerfile) lives in [Ghaby-X/server_details](https://github.com/Ghaby-X/server_details) - a standalone repo, built independently of this monorepo.
 
 ## Architecture
 
@@ -69,7 +69,7 @@ terraform output private_key_path
    | `registry_creds` | Username with password | Docker Hub username + access token |
    | `ec2_ssh` | SSH Username with private key | Contents of the deploy target's private key (`terraform output private_key_path`) |
 
-5. New Item → Pipeline. Under Pipeline, set Definition to "Pipeline script from SCM", SCM = Git, repo URL = the `lab-dom07-server-details` repo, Script Path = `Jenkinsfile` (default).
+5. New Item → Pipeline. Under Pipeline, set Definition to "Pipeline script from SCM", SCM = Git, Repository URL = `https://github.com/Ghaby-X/server_details.git`, Script Path = `Jenkinsfile` (default).
 6. Build with Parameters:
    - `DEPLOY_HOST` = `terraform output deploy_public_ip`
    - `IMAGE_NAME` = your Docker Hub repo, e.g. `yourdockerhubuser/lab-dom07-server-details`
@@ -95,8 +95,12 @@ The pipeline's own Cleanup stage prunes images/containers on the deploy target a
 
 ## Submission evidence
 
-Screenshots to capture (`screenshots/`):
+Live app: **http://63.33.209.25:3000/**
+App source: **https://github.com/Ghaby-X/server_details**
 
-- Tool versions: `jenkins --version` (or the Jenkins UI's "About Jenkins"), `docker --version`, `git --version`, and the EC2 console showing both instances (Amazon Linux 2023, running).
-- A full green pipeline run in Jenkins - all stages passing.
-- The app reachable at `http://<deploy_public_ip>:3000/`.
+| | |
+|---|---|
+| ![Deployed app](screenshots/001_hosted_application.png) | ![EC2 instances](screenshots/002_deployed_instances_on_aws.png) |
+| App live on the deploy target | Both instances running in EC2 (Amazon Linux 2023) |
+| ![Tool versions](screenshots/003_verified_jenkins_docker_git_cli.png) | ![Pipeline run](screenshots/004_verified_pipeline_jenkins_ui.png) |
+| `git`/`docker`/`jenkins` versions on the Jenkins host | Full green pipeline run - Checkout through Cleanup |
