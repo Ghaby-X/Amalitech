@@ -59,8 +59,8 @@ variable "app_allowed_cidr" {
 # EC2 instance configuration
 variable "jenkins_instance_type" {
   type        = string
-  default     = "t3.small"
-  description = "Instance type for the Jenkins host - t3.small so Jenkins itself and image builds have headroom. Org SCP (LimitEC2InstanceTypes) only allows t3.micro/small/medium, t2.* is denied"
+  default     = "t3.medium"
+  description = "Instance type for the Jenkins host - t3.medium so Jenkins itself and image builds have headroom"
 }
 
 variable "deploy_instance_type" {
