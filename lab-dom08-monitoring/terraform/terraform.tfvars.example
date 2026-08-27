@@ -1,0 +1,5 @@
+admin_allowed_cidr = "<your-ip>/32"
+
+# Only set this false if a GuardDuty detector already exists in this
+# account/region (only one is allowed per account per region).
+# enable_guardduty = false
