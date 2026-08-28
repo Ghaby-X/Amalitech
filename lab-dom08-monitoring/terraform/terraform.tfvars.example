@@ -3,3 +3,9 @@ admin_allowed_cidr = "<your-ip>/32"
 # Only set this false if a GuardDuty detector already exists in this
 # account/region (only one is allowed per account per region).
 # enable_guardduty = false
+
+# Slack Incoming Webhook (https://api.slack.com/apps -> your app -> Incoming
+# Webhooks). Leave unset and Alertmanager still runs, it just doesn't notify
+# anyone - alerts still show in Prometheus's/Grafana's own alert views.
+# slack_webhook_url = "https://hooks.slack.com/services/T000/B000/XXXXXXXX"
+# slack_channel     = "#alerts"
