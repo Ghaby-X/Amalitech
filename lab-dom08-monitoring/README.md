@@ -9,8 +9,6 @@ Two new EC2 instances in their own VPC (independent of lab-dom07, which may alre
 - **App host** (`t3.micro`) - runs the app container (built from the `feature/prometheus-metrics` branch of [server_details](https://github.com/Ghaby-X/server_details), which adds `GET /metrics`) and a Node Exporter container for host metrics. The app container's logs stream to CloudWatch Logs via the Docker `awslogs` driver.
 - **Monitoring host** (`t3.small`) - runs Prometheus (scrapes the app's `/metrics` and Node Exporter over the private network) and Grafana (dashboards + alert visibility on top of Prometheus), via Docker Compose.
 
-Account-level, region-wide (not tied to either instance):
-
 - **CloudTrail** - multi-region trail, log file validation on, delivering to an encrypted, lifecycled S3 bucket and to CloudWatch Logs.
 - **GuardDuty** - a detector for the account/region.
 
