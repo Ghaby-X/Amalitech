@@ -14,33 +14,9 @@ Account-level, region-wide (not tied to either instance):
 - **CloudTrail** - multi-region trail, log file validation on, delivering to an encrypted, lifecycled S3 bucket and to CloudWatch Logs.
 - **GuardDuty** - a detector for the account/region.
 
-```mermaid
-flowchart LR
-    subgraph VPC["lab-dom08-vpc (10.1.0.0/16)"]
-        subgraph App["App host"]
-            appc["app container\n:3000 /metrics"]
-            ne["node-exporter\n:9100"]
-        end
-        subgraph Mon["Monitoring host"]
-            prom["Prometheus\n:9090"]
-            graf["Grafana\n:3001"]
-        end
-        eice["EC2 Instance Connect\nEndpoint"]
-    end
+![Architecture diagram](architecture.png)
 
-    prom -- scrape /metrics --> appc
-    prom -- scrape :9100 --> ne
-    graf -- query --> prom
-    eice -. SSH, no open CIDR .-> App
-    eice -. SSH, no open CIDR .-> Mon
-
-    appc -- awslogs driver --> cwlogs[(CloudWatch Logs\n/lab-dom08/app)]
-    ct[CloudTrail] --> s3[(S3, encrypted\n+ lifecycle)]
-    ct --> cwtrail[(CloudWatch Logs\n/lab-dom08/cloudtrail)]
-    gd[GuardDuty] -.watches account activity.-> ct
-```
-
-SSH reaches neither instance over the internet: both security groups only accept port 22 from the **EC2 Instance Connect Endpoint**'s security group, so no personal IP is ever opened. Connect with the AWS CLI (see [Provisioning](#provisioning)) - no key pair, no CIDR to maintain.
+SSH reaches neither instance over the internet on a personal IP: both security groups accept port 22 only from the **EC2 Instance Connect Endpoint**'s security group (CLI, tunneled) or the AWS-managed **EC2 Instance Connect** prefix list (EC2 console's Connect button). See [Provisioning](#provisioning) - no key pair, no personal CIDR to maintain either way.
 
 ## Structure
 
@@ -59,13 +35,15 @@ lab-dom08-monitoring/
 │       ├── app_install.sh.tpl                   Clones+builds the app, runs it + node-exporter
 │       └── monitoring_install.sh.tpl             Writes configs below, `docker compose up`
 ├── prometheus/
-│   ├── prometheus.yml.tpl                        Scrape config (app private IP filled in by Terraform)
+│   ├── prometheus.yml.tpl                        Scrape config (app host discovered live via EC2 API)
 │   └── alert_rules.yml                            HighErrorRate (>5%), AppTargetDown
+├── prometheus.yml                                  Rendered copy of the above, for the submission table
 ├── grafana/
 │   ├── provisioning/datasources/datasource.yml   Prometheus datasource (auto-provisioned)
 │   ├── provisioning/dashboards/dashboard.yml     Dashboard provider config
 │   └── dashboards/app-observability.json          RPS, latency p50/p95/p99, error rate, host CPU/mem
 ├── docker-compose.monitoring.yml                  Reference copy of what runs on the monitoring host
+├── architecture.png                                Architecture diagram
 ├── screenshots/                                    Evidence (see checklist below)
 └── report/REPORT.md                                2-page insights report
 ```
@@ -99,7 +77,7 @@ terraform output app_fail_url            # .../api/fail - always-500, for the er
 terraform output prometheus_url          # http://<monitoring-dns>:9090
 terraform output prometheus_alerts_url   # .../alerts
 terraform output grafana_url             # http://<monitoring-dns>:3001 (admin/admin by default)
-terraform output ssh_app                 # aws ec2-instance-connect ssh --instance-id ... (no key/CIDR needed)
+terraform output ssh_app                 # aws ec2-instance-connect ssh --instance-id ... --connection-type eice
 terraform output ssh_monitoring
 ```
 
@@ -112,6 +90,7 @@ SSH needs the AWS CLI v2 and `ec2-instance-connect:SendSSHPublicKey` + `ec2-inst
 1. Open `terraform output grafana_url`, log in `admin`/`admin` (change it when prompted).
 2. The **App Observability - server_details** dashboard is already provisioned (Dashboards → browse). It should show live panels: Requests per second, Latency p50/p95/p99, Error rate, Total requests, App host CPU/memory.
 3. Generate some traffic so the panels have data:
+
    ```bash
    APP_URL=$(cd terraform && terraform output -raw app_url)
    for i in $(seq 1 200); do curl -s "$APP_URL/" -o /dev/null; curl -s "$APP_URL/api/server-info" -o /dev/null; sleep 0.2; done
@@ -131,6 +110,7 @@ done
 ```
 
 Then check:
+
 - Prometheus → `terraform output prometheus_alerts_url` - `HighErrorRate` should be **Firing** (Pending → Firing after the 30s `for`).
 - Grafana → Alerting → Alert rules - the same Prometheus-native rule is listed there too (the datasource has `manageAlerts: true`), plus the dashboard's Error rate panel crossing its red threshold line.
 
@@ -168,20 +148,25 @@ terraform destroy
 
 ## Screenshot checklist
 
-Save into `screenshots/`, matching the submission requirements table:
+Saved in `screenshots/`, matching the submission requirements table:
 
-| # | Filename | Shows |
-|---|---|---|
-| 1 | `001_prometheus_targets.png` | Prometheus → Status → Targets, both `server_details_app` and `node_exporter` **UP** |
-| 2 | `002_grafana_dashboard.png` | Grafana dashboard with live RPS/latency/error-rate panels |
-| 3 | `003_prometheus_alert_firing.png` | Prometheus → Alerts, `HighErrorRate` **Firing** during the `/api/fail` load test |
-| 4 | `004_grafana_alert_view.png` | Grafana → Alerting → Alert rules, showing the same rule |
-| 5 | `005_cloudwatch_log_group.png` | CloudWatch → Log groups → `/lab-dom08/app` with recent log streams/events |
-| 6 | `006_cloudtrail_trail.png` | CloudTrail → Trails → `lab-dom08-trail`, Logging On, S3 bucket + CloudWatch Logs configured |
-| 7 | `007_cloudtrail_s3_bucket.png` | S3 bucket Properties tab - encryption + lifecycle rule visible |
-| 8 | `008_guardduty_findings.png` | GuardDuty → Findings (sample findings if none organic yet) |
-| 9 | `009_tool_versions.png` | `docker exec prometheus promtool --version` / `docker exec grafana grafana-server -v` output, or the Grafana "About" panel |
+| Filename | Shows | Status |
+| --- | --- | --- |
+| `prometheus targets.png` | Prometheus → Status → Targets - `server_details_app`, `node_exporter`, and `prometheus` all **UP** | ✅ |
+| `grafana_dashboard.png` | Grafana dashboard, all 6 panels live with real traffic | ✅ |
+| `prometheus_high_error_rate_alert.png` | Prometheus → Alerts, `HighErrorRate` **Firing** at `0.811` (81.1%) against the 5% threshold | ✅ |
+| `cloudwatch_logs_server_details.png` | CloudWatch → `/lab-dom08/app` - structured JSON per-request logs | ✅ |
+| `cloudwatch_logs_cloudtrail.png` | CloudWatch → `/lab-dom08/cloudtrail` - real CloudTrail management events | ✅ |
+| `guardduty_unprotected_port_3000_findings.png` | GuardDuty → Findings - organic `Recon:EC2/PortProbeUnprotectedPort` finding on port 3000 | ✅ |
+| `architecture.png` | Architecture diagram | ✅ |
 
 ## Submission evidence
 
-_Filled in after provisioning and screenshotting against a live account - see [report/REPORT.md](report/REPORT.md) for the write-up._
+| | |
+| --- | --- |
+| ![Prometheus targets](screenshots/prometheus%20targets.png) | ![Grafana dashboard](screenshots/grafana_dashboard.png) |
+| All 3 Prometheus targets UP | Live dashboard - 468 requests captured |
+| ![HighErrorRate alert](screenshots/prometheus_high_error_rate_alert.png) | ![GuardDuty finding](screenshots/guardduty_unprotected_port_3000_findings.png) |
+| Alert Firing at 81.1% error rate | Organic GuardDuty finding - port 3000 probed within an hour of launch |
+| ![App logs in CloudWatch](screenshots/cloudwatch_logs_server_details.png) | ![CloudTrail in CloudWatch](screenshots/cloudwatch_logs_cloudtrail.png) |
+| Structured per-request JSON logs | CloudTrail management events streaming live |
