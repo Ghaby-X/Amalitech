@@ -7,11 +7,18 @@ module "app_sg" {
 
   ingress_rules = {
     ssh_via_instance_connect = {
-      description                  = "SSH via the EC2 Instance Connect Endpoint - no personal IP is ever opened"
+      description                  = "SSH via the EC2 Instance Connect Endpoint (CLI: --connection-type eice) - no personal IP is ever opened"
       ip_protocol                  = "tcp"
       from_port                    = 22
       to_port                      = 22
       referenced_security_group_id = module.eice_sg.security_group_id
+    }
+    ssh_via_instance_connect_console = {
+      description    = "SSH from the EC2 console browser-based EC2 Instance Connect (AWS-managed prefix list, not a personal IP)"
+      ip_protocol    = "tcp"
+      from_port      = 22
+      to_port        = 22
+      prefix_list_id = data.aws_ec2_managed_prefix_list.ec2_instance_connect.id
     }
     app = {
       description = "App port, for verifying accessibility and browsing the dashboard"
@@ -47,17 +54,31 @@ module "monitoring_sg" {
 
   ingress_rules = {
     ssh_via_instance_connect = {
-      description                  = "SSH via the EC2 Instance Connect Endpoint - no personal IP is ever opened"
+      description                  = "SSH via the EC2 Instance Connect Endpoint (CLI: --connection-type eice) - no personal IP is ever opened"
       ip_protocol                  = "tcp"
       from_port                    = 22
       to_port                      = 22
       referenced_security_group_id = module.eice_sg.security_group_id
+    }
+    ssh_via_instance_connect_console = {
+      description    = "SSH from the EC2 console browser-based EC2 Instance Connect (AWS-managed prefix list, not a personal IP)"
+      ip_protocol    = "tcp"
+      from_port      = 22
+      to_port        = 22
+      prefix_list_id = data.aws_ec2_managed_prefix_list.ec2_instance_connect.id
     }
     prometheus_ui = {
       description = "Prometheus web UI from allowed IP"
       ip_protocol = "tcp"
       from_port   = 9090
       to_port     = 9090
+      cidr_ipv4   = var.admin_allowed_cidr
+    }
+    alertmanager_ui = {
+      description = "Alertmanager web UI from allowed IP"
+      ip_protocol = "tcp"
+      from_port   = 9093
+      to_port     = 9093
       cidr_ipv4   = var.admin_allowed_cidr
     }
     grafana_ui = {
