@@ -33,12 +33,6 @@ variable "rt_name" {
 }
 
 # Security group configuration
-#
-# SSH does not take a CIDR at all: both instances only accept port 22 from
-# the EC2 Instance Connect Endpoint's security group (see
-# instance_connect.tf), so no personal IP is ever opened for SSH. Connect
-# with `aws ec2-instance-connect ssh --instance-id <id>` - see README.
-
 variable "admin_allowed_cidr" {
   type        = string
   description = "CIDR allowed to reach the Prometheus (9090) and Grafana (3001) UIs"
