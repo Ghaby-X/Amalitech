@@ -136,17 +136,3 @@ variable "enable_guardduty" {
   default     = true
   description = "Whether to create a GuardDuty detector. Set false if one already exists in this account/region - only one detector is allowed per account per region."
 }
-
-# Alertmanager / Slack
-variable "slack_webhook_url" {
-  type        = string
-  default     = ""
-  sensitive   = true
-  description = "Slack Incoming Webhook URL (https://api.slack.com/apps -> your app -> Incoming Webhooks). Leave empty to run Alertmanager with no notification integration - alerts still fire and show in Prometheus/Grafana, they just aren't routed anywhere."
-}
-
-variable "slack_channel" {
-  type        = string
-  default     = ""
-  description = "Slack channel to post to, e.g. #alerts. Leave empty to use the webhook's own default channel (most Incoming Webhooks are bound to one channel already and ignore this)."
-}

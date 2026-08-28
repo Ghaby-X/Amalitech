@@ -40,13 +40,6 @@ module "monitoring" {
       vpc_id             = module.vpc.vpc_id
     })
 
-    alert_rules_yml = file("${path.module}/../prometheus/alert_rules.yml")
-
-    alertmanager_yml = templatefile("${path.module}/../prometheus/alertmanager.yml.tpl", {
-      slack_webhook_url = var.slack_webhook_url
-      slack_channel     = var.slack_channel
-    })
-
     grafana_datasource_yml         = file("${path.module}/../grafana/provisioning/datasources/datasource.yml")
     grafana_dashboard_provider_yml = file("${path.module}/../grafana/provisioning/dashboards/dashboard.yml")
     grafana_dashboard_json         = file("${path.module}/../grafana/dashboards/app-observability.json")

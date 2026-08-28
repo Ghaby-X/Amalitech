@@ -2,13 +2,9 @@ global:
   scrape_interval: 15s
   evaluation_interval: 15s
 
-rule_files:
-  - /etc/prometheus/alert_rules.yml
-
-alerting:
-  alertmanagers:
-    - static_configs:
-        - targets: ["alertmanager:9093"]
+# No rule_files / alerting block here - the error-rate alert is configured
+# directly in Grafana (Alerting -> Alert rules, via the Prometheus
+# datasource), not as a Prometheus-evaluated rule. See README.
 
 scrape_configs:
   - job_name: "prometheus"

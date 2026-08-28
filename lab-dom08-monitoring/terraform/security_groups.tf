@@ -74,13 +74,6 @@ module "monitoring_sg" {
       to_port     = 9090
       cidr_ipv4   = var.admin_allowed_cidr
     }
-    alertmanager_ui = {
-      description = "Alertmanager web UI from allowed IP"
-      ip_protocol = "tcp"
-      from_port   = 9093
-      to_port     = 9093
-      cidr_ipv4   = var.admin_allowed_cidr
-    }
     grafana_ui = {
       description = "Grafana web UI from allowed IP"
       ip_protocol = "tcp"

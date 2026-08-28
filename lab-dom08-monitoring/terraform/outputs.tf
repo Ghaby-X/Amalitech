@@ -33,19 +33,14 @@ output "prometheus_url" {
   description = "Prometheus web UI"
 }
 
-output "prometheus_alerts_url" {
-  value       = "http://${module.monitoring.public_dns}:9090/alerts"
-  description = "Prometheus Alerts page - screenshot this to show HighErrorRate firing"
-}
-
 output "grafana_url" {
   value       = "http://${module.monitoring.public_dns}:3001"
   description = "Grafana web UI (login admin/admin by default - see README to change it)"
 }
 
-output "alertmanager_url" {
-  value       = "http://${module.monitoring.public_dns}:9093"
-  description = "Alertmanager web UI - shows routed alerts and silences. Notifications only actually reach Slack if slack_webhook_url is set."
+output "grafana_alerts_url" {
+  value       = "http://${module.monitoring.public_dns}:3001/alerting/list"
+  description = "Grafana Alerting - configure the error-rate alert rule (and a Slack contact point, if wanted) here directly in the console"
 }
 
 output "app_instance_id" {

@@ -13,7 +13,6 @@ curl -fsSL "https://github.com/docker/compose/releases/latest/download/docker-co
 chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 
 mkdir -p /opt/monitoring/prometheus
-mkdir -p /opt/monitoring/alertmanager
 mkdir -p /opt/monitoring/grafana/provisioning/datasources
 mkdir -p /opt/monitoring/grafana/provisioning/dashboards
 mkdir -p /opt/monitoring/grafana/dashboards
@@ -24,14 +23,6 @@ EOF
 
 cat <<'EOF' > /opt/monitoring/prometheus/prometheus.yml
 ${prometheus_yml}
-EOF
-
-cat <<'EOF' > /opt/monitoring/prometheus/alert_rules.yml
-${alert_rules_yml}
-EOF
-
-cat <<'EOF' > /opt/monitoring/alertmanager/alertmanager.yml
-${alertmanager_yml}
 EOF
 
 cat <<'EOF' > /opt/monitoring/grafana/provisioning/datasources/datasource.yml
