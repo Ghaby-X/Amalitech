@@ -43,6 +43,11 @@ output "grafana_url" {
   description = "Grafana web UI (login admin/admin by default - see README to change it)"
 }
 
+output "alertmanager_url" {
+  value       = "http://${module.monitoring.public_dns}:9093"
+  description = "Alertmanager web UI - shows routed alerts and silences. Notifications only actually reach Slack if slack_webhook_url is set."
+}
+
 output "app_instance_id" {
   value       = module.app.instance_id
   description = "Instance ID for `aws ec2-instance-connect ssh --instance-id ...`"
@@ -54,13 +59,13 @@ output "monitoring_instance_id" {
 }
 
 output "ssh_app" {
-  value       = "aws ec2-instance-connect ssh --instance-id ${module.app.instance_id} --os-user ec2-user"
-  description = "Full command to SSH into the app host - no key pair or open CIDR needed"
+  value       = "aws ec2-instance-connect ssh --instance-id ${module.app.instance_id} --os-user ec2-user --connection-type eice"
+  description = "Full command to SSH into the app host - no key pair or open CIDR needed. --connection-type eice is required: both instances have public IPs, and the CLI's default 'auto' mode prefers a direct internet SSH attempt whenever one exists, which the security groups block."
 }
 
 output "ssh_monitoring" {
-  value       = "aws ec2-instance-connect ssh --instance-id ${module.monitoring.instance_id} --os-user ec2-user"
-  description = "Full command to SSH into the monitoring host - no key pair or open CIDR needed"
+  value       = "aws ec2-instance-connect ssh --instance-id ${module.monitoring.instance_id} --os-user ec2-user --connection-type eice"
+  description = "Full command to SSH into the monitoring host - no key pair or open CIDR needed. --connection-type eice is required: both instances have public IPs, and the CLI's default 'auto' mode prefers a direct internet SSH attempt whenever one exists, which the security groups block."
 }
 
 output "cloudtrail_bucket" {

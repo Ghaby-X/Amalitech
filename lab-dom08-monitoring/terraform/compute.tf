@@ -27,17 +27,25 @@ module "monitoring" {
   subnet_id                   = module.subnet.subnet_ids[0]
   security_group_ids          = [module.monitoring_sg.security_group_id]
   associate_public_ip_address = true
+  iam_instance_profile        = aws_iam_instance_profile.monitoring_ec2_sd_profile.name
 
   user_data = templatefile("${path.module}/user_data/monitoring_install.sh.tpl", {
     compose_yml = file("${path.module}/../docker-compose.monitoring.yml")
 
     prometheus_yml = templatefile("${path.module}/../prometheus/prometheus.yml.tpl", {
-      app_private_ip     = module.app.private_ip
+      aws_region         = var.region
       app_port           = var.app_port
       node_exporter_port = var.node_exporter_port
+      app_instance_name  = var.app_instance_name
+      vpc_id             = module.vpc.vpc_id
     })
 
     alert_rules_yml = file("${path.module}/../prometheus/alert_rules.yml")
+
+    alertmanager_yml = templatefile("${path.module}/../prometheus/alertmanager.yml.tpl", {
+      slack_webhook_url = var.slack_webhook_url
+      slack_channel     = var.slack_channel
+    })
 
     grafana_datasource_yml         = file("${path.module}/../grafana/provisioning/datasources/datasource.yml")
     grafana_dashboard_provider_yml = file("${path.module}/../grafana/provisioning/dashboards/dashboard.yml")
