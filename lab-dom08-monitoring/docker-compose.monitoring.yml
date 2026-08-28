@@ -1,9 +1,3 @@
-# Reference copy of the compose file the monitoring EC2 instance runs.
-# Terraform embeds this (plus the config files under prometheus/ and
-# grafana/) into the instance's user-data at apply time - see
-# terraform/user_data/monitoring_install.sh.tpl. Deployed to
-# /opt/monitoring/docker-compose.yml on the instance.
-
 services:
   prometheus:
     image: prom/prometheus:v2.54.1
