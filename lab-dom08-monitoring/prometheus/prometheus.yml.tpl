@@ -5,6 +5,11 @@ global:
 rule_files:
   - /etc/prometheus/alert_rules.yml
 
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ["alertmanager:9093"]
+
 scrape_configs:
   - job_name: "prometheus"
     static_configs:
@@ -12,13 +17,31 @@ scrape_configs:
 
   - job_name: "server_details_app"
     metrics_path: /metrics
-    static_configs:
-      - targets: ["${app_private_ip}:${app_port}"]
-        labels:
-          instance_role: "app"
+    ec2_sd_configs:
+      - region: ${aws_region}
+        port: ${app_port}
+        filters:
+          - name: tag:Name
+            values: ["${app_instance_name}"]
+          - name: vpc-id
+            values: ["${vpc_id}"]
+          - name: instance-state-name
+            values: ["running"]
+    relabel_configs:
+      - target_label: instance_role
+        replacement: app
 
   - job_name: "node_exporter"
-    static_configs:
-      - targets: ["${app_private_ip}:${node_exporter_port}"]
-        labels:
-          instance_role: "app"
+    ec2_sd_configs:
+      - region: ${aws_region}
+        port: ${node_exporter_port}
+        filters:
+          - name: tag:Name
+            values: ["${app_instance_name}"]
+          - name: vpc-id
+            values: ["${vpc_id}"]
+          - name: instance-state-name
+            values: ["running"]
+    relabel_configs:
+      - target_label: instance_role
+        replacement: app
