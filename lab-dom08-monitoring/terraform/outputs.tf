@@ -33,6 +33,11 @@ output "prometheus_url" {
   description = "Prometheus web UI"
 }
 
+output "prometheus_alerts_url" {
+  value       = "http://${module.monitoring.public_dns}:9090/alerts"
+  description = "Prometheus Alerts page - screenshot this to show HighErrorRate firing"
+}
+
 output "grafana_url" {
   value       = "http://${module.monitoring.public_dns}:3001"
   description = "Grafana web UI (login admin/admin by default - see README to change it)"
@@ -40,7 +45,7 @@ output "grafana_url" {
 
 output "grafana_alerts_url" {
   value       = "http://${module.monitoring.public_dns}:3001/alerting/list"
-  description = "Grafana Alerting - configure the error-rate alert rule (and a Slack contact point, if wanted) here directly in the console"
+  description = "Grafana Alerting - the HighErrorRate/AppTargetDown rules Prometheus evaluates also show up here (read-only, via the datasource); add a Slack contact point here yourself if you want routing beyond just seeing them fire"
 }
 
 output "app_instance_id" {

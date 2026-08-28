@@ -25,6 +25,10 @@ cat <<'EOF' > /opt/monitoring/prometheus/prometheus.yml
 ${prometheus_yml}
 EOF
 
+cat <<'EOF' > /opt/monitoring/prometheus/alert_rules.yml
+${alert_rules_yml}
+EOF
+
 cat <<'EOF' > /opt/monitoring/grafana/provisioning/datasources/datasource.yml
 ${grafana_datasource_yml}
 EOF
