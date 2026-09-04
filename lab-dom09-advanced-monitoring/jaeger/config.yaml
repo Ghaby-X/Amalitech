@@ -1,0 +1,42 @@
+# Jaeger v2 (OTel Collector-based).
+
+# Where spans come in - OTLP over gRPC (4317) and HTTP (4318).
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+# Batches spans before export, instead of sending one at a time.
+processors:
+  batch:
+
+# Storage backend (in-memory) and the query service that serves the
+# Jaeger UI/API on 16686.
+extensions:
+  jaeger_storage:
+    backends:
+      memstore:
+        memory:
+          max_traces: 100000
+  jaeger_query:
+    storage:
+      traces: memstore
+    http:
+      endpoint: 0.0.0.0:16686
+
+# Writes processed spans into the storage backend above.
+exporters:
+  jaeger_storage_exporter:
+    trace_storage: memstore
+
+# Wires it all into one pipeline: OTLP in -> batch -> storage.
+service:
+  extensions: [jaeger_storage, jaeger_query]
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [jaeger_storage_exporter]
