@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ShopNow</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>ShopNow</h1>
+        <a class="cart-link" href="{{ url_for('view_cart') }}">
+            Cart ({{ cart['items']|length }}) - ${{ cart.totalCents|money }}
+        </a>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                    <p class="flash flash-{{ category }}">{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <main>
+        <section class="products">
+            <h2>Products</h2>
+            <div class="product-grid">
+                {% for product in products %}
+                <div class="product-card">
+                    <img src="{{ product.imageUrl }}" alt="{{ product.name }}">
+                    <h3>{{ product.name }}</h3>
+                    <p class="price">${{ product.priceCents|money }}</p>
+                    {% if product.stock > 0 %}
+                        <form method="post" action="{{ url_for('add_to_cart') }}" class="add-form">
+                            <input type="hidden" name="productId" value="{{ product.id }}">
+                            <input type="hidden" name="qty" value="1">
+                            <button type="submit">Add to cart</button>
+                        </form>
+                        <p class="stock">{{ product.stock }} in stock</p>
+                    {% else %}
+                        <p class="out-of-stock">Out of stock</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+    </main>
+</body>
+</html>

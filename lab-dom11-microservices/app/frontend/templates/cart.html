@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ShopNow - Cart</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>ShopNow</h1>
+        <a class="cart-link" href="{{ url_for('index') }}">&larr; Continue shopping</a>
+    </header>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="flashes">
+                {% for category, message in messages %}
+                    <p class="flash flash-{{ category }}">{{ message }}</p>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <main>
+        <section class="cart">
+            <h2>Your cart</h2>
+            {% if cart['items'] %}
+                <table>
+                    <thead>
+                        <tr><th>Product</th><th>Qty</th><th>Price</th><th>Total</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        {% for item in cart['items'] %}
+                        <tr>
+                            <td>{{ item.name }}</td>
+                            <td>{{ item.qty }}</td>
+                            <td>${{ item.priceCents|money }}</td>
+                            <td>${{ item.lineTotalCents|money }}</td>
+                            <td>
+                                <form method="post" action="{{ url_for('remove_from_cart', product_id=item.productId) }}">
+                                    <button type="submit">Remove</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <p class="cart-total">Total: ${{ cart.totalCents|money }}</p>
+                <form method="post" action="{{ url_for('checkout') }}">
+                    <button type="submit" class="checkout-btn">Purchase</button>
+                </form>
+            {% else %}
+                <p>Your cart is empty. <a href="{{ url_for('index') }}">Browse products</a></p>
+            {% endif %}
+        </section>
+    </main>
+</body>
+</html>
