@@ -53,3 +53,18 @@ resource "aws_iam_role_policy" "read_ssm_parameters" {
   role   = aws_iam_role.ecs_task_execution.id
   policy = data.aws_iam_policy_document.read_ssm_parameters[0].json
 }
+
+# logs:CreateLogGroup 
+data "aws_iam_policy_document" "create_log_group" {
+  statement {
+    effect    = "Allow"
+    actions   = ["logs:CreateLogGroup"]
+    resources = ["arn:aws:logs:*:*:log-group:/ecs/${var.project_name}*"]
+  }
+}
+
+resource "aws_iam_role_policy" "create_log_group" {
+  name   = "${var.project_name}-create-log-group"
+  role   = aws_iam_role.ecs_task_execution.id
+  policy = data.aws_iam_policy_document.create_log_group.json
+}
