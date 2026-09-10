@@ -6,6 +6,10 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
+    random = {
+      source  = "hashicorp/random"
+      version = "~> 3.6"
+    }
   }
 }
 
@@ -32,10 +36,21 @@ module "security" {
   vpc_id       = module.networking.vpc_id
 }
 
+module "secrets" {
+  source = "../../modules/secrets"
+
+  project_name = var.project_name
+}
+
 module "iam" {
   source = "../../modules/iam"
 
   project_name = var.project_name
+  ssm_parameter_arns = [
+    module.secrets.postgres_password_arn,
+    module.secrets.redis_password_arn,
+    module.secrets.frontend_secret_key_arn,
+  ]
 }
 
 module "storage" {
