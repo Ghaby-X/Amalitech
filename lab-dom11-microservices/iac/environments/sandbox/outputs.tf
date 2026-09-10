@@ -86,3 +86,7 @@ output "ecs_cluster_name" {
 output "service_discovery_namespace" {
   value = "${var.project_name}.local"
 }
+
+output "alb_dns_name" {
+  value = module.ecs.alb_dns_name
+}
