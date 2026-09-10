@@ -9,3 +9,7 @@ output "cluster_name" {
 output "namespace_id" {
   value = aws_service_discovery_private_dns_namespace.this.id
 }
+
+output "alb_dns_name" {
+  value = aws_lb.this.dns_name
+}
