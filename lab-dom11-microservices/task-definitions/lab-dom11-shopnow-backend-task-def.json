@@ -29,7 +29,7 @@
         },
         {
           "name": "REDIS_HOST",
-          "value": "shopnow-redis.lab-dom11-shopnow.local"
+          "value": "redis-xt1iov.serverless.euw1.cache.amazonaws.com"
         },
         {
           "name": "PORT",
@@ -58,6 +58,10 @@
         {
           "name": "PGDATABASE",
           "value": "shopnow"
+        },
+        {
+          "name": "REDIS_TLS",
+          "value": "true"
         }
       ],
       "environmentFiles": [],

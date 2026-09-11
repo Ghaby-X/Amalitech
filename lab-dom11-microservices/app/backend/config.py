@@ -15,7 +15,8 @@ PG_DATABASE_URL = f'postgresql://{PGUSER}:{PGPASSWORD}@{PGHOST}:{PGPORT}/{PGDATA
 
 REDIS_HOST = os.environ.get('REDIS_HOST', 'localhost')
 REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
-REDIS_URL = f'redis://{REDIS_HOST}:{REDIS_PORT}'
+REDIS_TLS = os.environ.get('REDIS_TLS', 'false').lower() == 'true'
+REDIS_URL = f'{"rediss" if REDIS_TLS else "redis"}://{REDIS_HOST}:{REDIS_PORT}'
 
 CART_COOKIE_NAME = os.environ.get('CART_COOKIE_NAME', 'cart_id')
 CART_TTL_SECONDS = int(os.environ.get('CART_TTL_SECONDS', 86400)) # last for 24 hours
