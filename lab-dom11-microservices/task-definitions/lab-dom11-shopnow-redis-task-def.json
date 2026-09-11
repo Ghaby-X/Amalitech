@@ -13,21 +13,11 @@
         }
       ],
       "essential": true,
-      "command": [
-        "sh",
-        "-c",
-        "redis-server --requirepass \"$REDIS_PASSWORD\""
-      ],
       "environment": [],
       "environmentFiles": [],
       "mountPoints": [],
       "volumesFrom": [],
-      "secrets": [
-        {
-          "name": "REDIS_PASSWORD",
-          "valueFrom": "/lab-dom11-shopnow/redis/password"
-        }
-      ],
+      "secrets": [],
       "ulimits": [],
       "logConfiguration": {
         "logDriver": "awslogs",

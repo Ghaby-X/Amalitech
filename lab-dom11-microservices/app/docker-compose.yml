@@ -13,13 +13,10 @@ services:
 
   redis:
     image: redis:7-alpine
-    env_file:
-      - redis.env
-    command: sh -c 'redis-server --requirepass "$$REDIS_PASSWORD"'
     ports:
       - "127.0.0.1:6379:6379"
     healthcheck:
-      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" ping"]
+      test: ["CMD-SHELL", "redis-cli ping"]
       interval: 5s
       timeout: 5s
       retries: 10
