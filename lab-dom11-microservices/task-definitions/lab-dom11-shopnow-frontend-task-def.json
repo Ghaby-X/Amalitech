@@ -1,0 +1,74 @@
+{
+  "containerDefinitions": [
+    {
+      "name": "shopnow-frontend",
+      "image": "711387121692.dkr.ecr.eu-west-1.amazonaws.com/lab-dom11-shopnow/frontend:aeb45d9533",
+      "cpu": 0,
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "hostPort": 3000,
+          "protocol": "tcp",
+          "name": "shopnow-frontend-3000-tcp",
+          "appProtocol": "http"
+        }
+      ],
+      "essential": true,
+      "environment": [
+        {
+          "name": "SERVICE_NAME",
+          "value": "shopnow-frontend"
+        },
+        {
+          "name": "BACKEND_SERVICE",
+          "value": "shopnow-backend"
+        },
+        {
+          "name": "PORT",
+          "value": "3000"
+        },
+        {
+          "name": "LOG_LEVEL",
+          "value": "INFO"
+        }
+      ],
+      "environmentFiles": [],
+      "mountPoints": [],
+      "volumesFrom": [],
+      "secrets": [
+        {
+          "name": "SECRET_KEY",
+          "valueFrom": "/lab-dom11-shopnow/frontend/secret-key"
+        }
+      ],
+      "ulimits": [],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/lab-dom11-shopnow",
+          "awslogs-create-group": "true",
+          "awslogs-region": "eu-west-1",
+          "awslogs-stream-prefix": "frontend"
+        },
+        "secretOptions": []
+      },
+      "systemControls": []
+    }
+  ],
+  "family": "lab-dom11-shopnow-frontend-task-def",
+  "executionRoleArn": "arn:aws:iam::711387121692:role/lab-dom11-shopnow-ecs-task-execution",
+  "networkMode": "awsvpc",
+  "volumes": [],
+  "placementConstraints": [],
+  "runtimePlatform": {
+    "cpuArchitecture": "X86_64",
+    "operatingSystemFamily": "LINUX"
+  },
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "1024",
+  "memory": "3072",
+  "enableFaultInjection": false,
+  "tags": []
+}

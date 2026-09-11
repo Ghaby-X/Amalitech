@@ -1,0 +1,61 @@
+{
+  "containerDefinitions": [
+    {
+      "name": "shopnow-redis",
+      "image": "redis:7-alpine",
+      "cpu": 0,
+      "portMappings": [
+        {
+          "containerPort": 6379,
+          "hostPort": 6379,
+          "protocol": "tcp",
+          "name": "shopnow-redis-6379-tcp"
+        }
+      ],
+      "essential": true,
+      "command": [
+        "sh",
+        "-c",
+        "redis-server --requirepass \"$REDIS_PASSWORD\""
+      ],
+      "environment": [],
+      "environmentFiles": [],
+      "mountPoints": [],
+      "volumesFrom": [],
+      "secrets": [
+        {
+          "name": "REDIS_PASSWORD",
+          "valueFrom": "/lab-dom11-shopnow/redis/password"
+        }
+      ],
+      "ulimits": [],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/lab-dom11-shopnow",
+          "awslogs-create-group": "true",
+          "awslogs-region": "eu-west-1",
+          "awslogs-stream-prefix": "redis"
+        },
+        "secretOptions": []
+      },
+      "systemControls": []
+    }
+  ],
+  "family": "lab-dom11-shopnow-redis-task-def",
+  "executionRoleArn": "arn:aws:iam::711387121692:role/lab-dom11-shopnow-ecs-task-execution",
+  "networkMode": "awsvpc",
+  "volumes": [],
+  "placementConstraints": [],
+  "runtimePlatform": {
+    "cpuArchitecture": "X86_64",
+    "operatingSystemFamily": "LINUX"
+  },
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "1024",
+  "memory": "3072",
+  "enableFaultInjection": false,
+  "tags": []
+}

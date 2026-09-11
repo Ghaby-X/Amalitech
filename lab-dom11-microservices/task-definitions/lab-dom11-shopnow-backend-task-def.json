@@ -1,0 +1,106 @@
+{
+  "containerDefinitions": [
+    {
+      "name": "shopnow-backend",
+      "image": "711387121692.dkr.ecr.eu-west-1.amazonaws.com/lab-dom11-shopnow/backend:aeb45d9533",
+      "cpu": 0,
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "hostPort": 8000,
+          "protocol": "tcp",
+          "name": "shopnow-backend-8000-tcp",
+          "appProtocol": "http"
+        }
+      ],
+      "essential": true,
+      "environment": [
+        {
+          "name": "CART_COOKIE_NAME",
+          "value": "cart_id"
+        },
+        {
+          "name": "SERVICE_NAME",
+          "value": "shopnow-backend"
+        },
+        {
+          "name": "PGHOST",
+          "value": "shopnow-postgres.lab-dom11-shopnow.local"
+        },
+        {
+          "name": "REDIS_HOST",
+          "value": "shopnow-redis.lab-dom11-shopnow.local"
+        },
+        {
+          "name": "PORT",
+          "value": "8000"
+        },
+        {
+          "name": "REDIS_PORT",
+          "value": "6379"
+        },
+        {
+          "name": "PGUSER",
+          "value": "shopnow"
+        },
+        {
+          "name": "CART_TTL_SECONDS",
+          "value": "86400"
+        },
+        {
+          "name": "PGPORT",
+          "value": "5432"
+        },
+        {
+          "name": "LOG_LEVEL",
+          "value": "INFO"
+        },
+        {
+          "name": "PGDATABASE",
+          "value": "shopnow"
+        }
+      ],
+      "environmentFiles": [],
+      "mountPoints": [],
+      "volumesFrom": [],
+      "secrets": [
+        {
+          "name": "PGPASSWORD",
+          "valueFrom": "/lab-dom11-shopnow/postgres/password"
+        },
+        {
+          "name": "REDIS_PASSWORD",
+          "valueFrom": "/lab-dom11-shopnow/redis/password"
+        }
+      ],
+      "ulimits": [],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/lab-dom11-shopnow",
+          "awslogs-create-group": "true",
+          "awslogs-region": "eu-west-1",
+          "awslogs-stream-prefix": "backend"
+        },
+        "secretOptions": []
+      },
+      "systemControls": []
+    }
+  ],
+  "family": "lab-dom11-shopnow-backend-task-def",
+  "executionRoleArn": "arn:aws:iam::711387121692:role/lab-dom11-shopnow-ecs-task-execution",
+  "networkMode": "awsvpc",
+  "volumes": [],
+  "placementConstraints": [],
+  "runtimePlatform": {
+    "cpuArchitecture": "X86_64",
+    "operatingSystemFamily": "LINUX"
+  },
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "cpu": "1024",
+  "memory": "3072",
+  "enableFaultInjection": false,
+  "tags": []
+}
