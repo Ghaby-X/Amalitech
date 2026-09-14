@@ -9,9 +9,3 @@ variable "bucket-prefix" {
   default = "terraform-backend"
   description = "prefix for s3 bucket name for terraform backend"
 }
-
-variable "dynamodb-name" {
-  type = string
-  default = "terraform-locks"
-  description = "name of dynamodb table used for terraform locking"
-}

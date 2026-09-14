@@ -9,7 +9,7 @@ terraform {
       version = "~> 3.6"
     }
   }
-  required_version = "~> 1.15.8"
+  required_version = ">= 1.15.8"
 }
 
 # creating providers
@@ -73,18 +73,4 @@ resource "aws_s3_bucket_public_access_block" "backend" {
   ignore_public_acls      = true
   block_public_policy     = true 
   restrict_public_buckets = true
-}
-
-# -------------------------------------------
-# create dynamodb
-# -------------------------------------------
-resource "aws_dynamodb_table" "terraform_locks" {
-  name         = var.dynamodb-name
-  billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "LockID"
-
-  attribute {
-    name = "LockID"
-    type = "S"
-  }
 }
