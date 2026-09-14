@@ -7,6 +7,11 @@ output "postgres_password_arn" {
   value = aws_ssm_parameter.postgres_password.arn
 }
 
+output "postgres_password" {
+  value     = random_password.postgres.result
+  sensitive = true
+}
+
 output "redis_password_name" {
   value = aws_ssm_parameter.redis_password.name
 }
