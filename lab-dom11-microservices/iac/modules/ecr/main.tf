@@ -2,7 +2,7 @@
 resource "aws_ecr_repository" "this" {
   for_each = toset(var.repository_names)
 
-  name = "${var.project_name}/${each.key}"
+  name                 = "${var.project_name}/${each.key}"
   image_tag_mutability = "IMMUTABLE"
   image_scanning_configuration {
     scan_on_push = true
@@ -37,10 +37,10 @@ resource "aws_ecr_lifecycle_policy" "this" {
         rulePriority = 2
         description  = "Keep only the most recent tagged images"
         selection = {
-          tagStatus     = "tagged"
+          tagStatus      = "tagged"
           tagPatternList = ["*"]
-          countType     = "imageCountMoreThan"
-          countNumber   = var.max_tagged_images
+          countType      = "imageCountMoreThan"
+          countNumber    = var.max_tagged_images
         }
         action = { type = "expire" }
       }
