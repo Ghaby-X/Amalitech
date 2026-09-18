@@ -1,0 +1,9 @@
+clusterName: lab-dom11-shopnow-eks
+region: eu-west-1
+vpcId: vpc-00357e83e5e2ce01c
+
+serviceAccount:
+  create: true
+  name: aws-load-balancer-controller
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::182399707265:role/lab-dom11-shopnow-eks-lb-controller

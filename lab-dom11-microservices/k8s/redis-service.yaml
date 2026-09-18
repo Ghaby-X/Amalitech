@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+spec:
+  type: ExternalName
+  externalName: lab-dom11-shopnow-redis-iwzbwd.serverless.euw1.cache.amazonaws.com

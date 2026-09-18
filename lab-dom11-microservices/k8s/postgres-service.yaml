@@ -1,0 +1,9 @@
+# DNS alias to RDS - no headless Service/EndpointSlice hack needed here,
+# unlike the k3s VM setup, since RDS has a real DNS name.
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  type: ExternalName
+  externalName: lab-dom11-shopnow-postgres.ct4cmms0k59l.eu-west-1.rds.amazonaws.com
