@@ -44,11 +44,7 @@ output "redis_security_group_id" {
   value = module.security.redis_security_group_id
 }
 
-output "efs_security_group_id" {
-  value = module.security.efs_security_group_id
-}
-
-#  secrets 
+#  secrets
 output "postgres_password_parameter" {
   value = module.secrets.postgres_password_name
 }
@@ -67,17 +63,45 @@ output "ecs_task_execution_role_arn" {
   value = module.iam.ecs_task_execution_role_arn
 }
 
-#  storage 
+#  eks
 
-output "postgres_efs_file_system_id" {
-  value = module.storage.postgres_file_system_id
+output "eks_cluster_name" {
+  value = module.eks.cluster_name
 }
 
-output "postgres_efs_access_point_id" {
-  value = module.storage.postgres_access_point_id
+output "eks_cluster_endpoint" {
+  value = module.eks.cluster_endpoint
 }
 
-#  ecs 
+output "eks_oidc_provider_arn" {
+  value = module.eks.oidc_provider_arn
+}
+
+output "eks_lb_controller_role_arn" {
+  value = module.eks.lb_controller_role_arn
+}
+
+#  rds
+
+output "postgres_address" {
+  value = module.rds.address
+}
+
+output "postgres_port" {
+  value = module.rds.port
+}
+
+#  elasticache
+
+output "redis_address" {
+  value = module.elasticache.address
+}
+
+output "redis_port" {
+  value = module.elasticache.port
+}
+
+#  ecs
 
 output "ecs_cluster_name" {
   value = module.ecs.cluster_name

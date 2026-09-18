@@ -8,10 +8,14 @@ terraform {
       source  = "hashicorp/random"
       version = "~> 3.6"
     }
+    tls = {
+      source  = "hashicorp/tls"
+      version = "~> 4.0"
+    }
   }
 
   backend "s3" {
-    bucket       = "terraform-backend-eu-west-1-55zz0s"
+    bucket       = "terraform-backend-eu-west-1-nx1g7s"
     key          = "lab-dom11/statefile"
     region       = "eu-west-1"
     use_lockfile = true
