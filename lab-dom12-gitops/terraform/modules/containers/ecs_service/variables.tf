@@ -40,6 +40,11 @@ variable "task_memory" {
   default     = 512
 }
 
+variable "task_definition_template_path" {
+  description = "Path to the task definition template (ecs/taskdef.template.json) - the same file the CI pipeline renders, so the initial revision matches every later one."
+  type        = string
+}
+
 variable "ecr_repository_url" {
   description = "URL of the ECR repository the app image is pulled from."
   type        = string
@@ -63,7 +68,7 @@ variable "initial_desired_count" {
 }
 
 variable "subnet_ids" {
-  description = "Private subnets the tasks run in. Tasks get no public IP, so these need a NAT gateway route to reach ECR and CloudWatch Logs."
+  description = "Private subnets the tasks run in. Tasks get no public IP, so these subnets need VPC endpoints for ECR, S3 and CloudWatch Logs."
   type        = list(string)
 }
 

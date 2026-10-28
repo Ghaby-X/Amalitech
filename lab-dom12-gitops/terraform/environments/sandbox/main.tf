@@ -85,6 +85,9 @@ module "ecs_service" {
   task_cpu          = var.task_cpu
   task_memory       = var.task_memory
 
+  # Shared with the CI pipeline's render step.
+  task_definition_template_path = "${path.module}/../../../ecs/taskdef.template.json"
+
   ecr_repository_url = module.ecr.repository_url
   ecr_repository_arn = module.ecr.repository_arn
 

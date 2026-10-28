@@ -99,60 +99,41 @@ resource "aws_iam_role" "task" {
 # --- Initial task definition ---
 #
 # An ECS service can't be created without a task definition, so Terraform
-# registers revision 1 as a placeholder. Every later revision is rendered from ecs/taskdef.template.json and
-# registered by the CI pipeline - see the ignore_changes on the service below.
+# registers revision 1. It is rendered from the same template the CI pipeline
+# renders (scripts/render-taskdef.sh), so the two can't drift; every later
+# revision is registered by the pipeline - see the ignore_changes on the
+# service below.
+locals {
+  task_definition = jsondecode(templatefile(var.task_definition_template_path, {
+    IMAGE              = "${var.ecr_repository_url}:${var.initial_image_tag}"
+    TASK_FAMILY        = var.task_family
+    TASK_CPU           = var.task_cpu
+    TASK_MEMORY        = var.task_memory
+    EXECUTION_ROLE_ARN = aws_iam_role.execution.arn
+    TASK_ROLE_ARN      = aws_iam_role.task.arn
+    CONTAINER_NAME     = var.container_name
+    CONTAINER_PORT     = var.container_port
+    HEALTH_CHECK_PATH  = var.health_check_path
+    LOG_GROUP          = aws_cloudwatch_log_group.app.name
+    AWS_REGION         = data.aws_region.current.region
+  }))
+}
+
 resource "aws_ecs_task_definition" "initial" {
-  family                   = var.task_family
-  requires_compatibilities = ["FARGATE"]
-  network_mode             = "awsvpc"
-  cpu                      = var.task_cpu
-  memory                   = var.task_memory
-  execution_role_arn       = aws_iam_role.execution.arn
-  task_role_arn            = aws_iam_role.task.arn
+  family                   = local.task_definition.family
+  requires_compatibilities = local.task_definition.requiresCompatibilities
+  network_mode             = local.task_definition.networkMode
+  cpu                      = local.task_definition.cpu
+  memory                   = local.task_definition.memory
+  execution_role_arn       = local.task_definition.executionRoleArn
+  task_role_arn            = local.task_definition.taskRoleArn
 
   runtime_platform {
-    operating_system_family = "LINUX"
-    cpu_architecture        = "X86_64"
+    operating_system_family = local.task_definition.runtimePlatform.operatingSystemFamily
+    cpu_architecture        = local.task_definition.runtimePlatform.cpuArchitecture
   }
 
-  container_definitions = jsonencode([
-    {
-      name                   = var.container_name
-      image                  = "${var.ecr_repository_url}:${var.initial_image_tag}"
-      essential              = true
-      readonlyRootFilesystem = true
-      # Runs an init process as PID 1 so SIGTERM from a rolling stop reaches
-      # node and exits cleanly instead of being killed after the stop timeout.
-      linuxParameters = {
-        initProcessEnabled = true
-      }
-      portMappings = [
-        {
-          containerPort = var.container_port
-          protocol      = "tcp"
-        }
-      ]
-      environment = [
-        { name = "PORT", value = tostring(var.container_port) },
-        { name = "NODE_ENV", value = "production" },
-      ]
-      healthCheck = {
-        command     = ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://127.0.0.1:${var.container_port}${var.health_check_path} || exit 1"]
-        interval    = 30
-        timeout     = 5
-        retries     = 3
-        startPeriod = 10
-      }
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          awslogs-group         = aws_cloudwatch_log_group.app.name
-          awslogs-region        = data.aws_region.current.region
-          awslogs-stream-prefix = var.container_name
-        }
-      }
-    }
-  ])
+  container_definitions = jsonencode(local.task_definition.containerDefinitions)
 
   tags = var.tags
 }
