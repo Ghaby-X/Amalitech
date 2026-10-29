@@ -19,7 +19,7 @@ variable "vpc_cidr_block" {
 variable "public_subnet_cidr_blocks" {
   type        = list(string)
   default     = ["10.12.0.0/24", "10.12.1.0/24"]
-  description = "Public subnets (ALB, NAT gateway), one per AZ - the ALB needs at least two AZs"
+  description = "Public subnets for the ALB, one per AZ - the ALB needs at least two AZs"
 }
 
 variable "private_subnet_cidr_blocks" {
