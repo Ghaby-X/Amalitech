@@ -1,0 +1,135 @@
+{
+  "collectedAt": "2026-10-29T06:22:17Z",
+  "service": {
+    "name": "lab-dom12-sandbox-app",
+    "taskDefinition": "arn:aws:ecs:eu-west-1:447558491229:task-definition/lab-dom12-sandbox-app:2",
+    "desiredCount": 2,
+    "runningCount": 2,
+    "deployments": [
+      {
+        "id": "ecs-svc/2026225876674644754",
+        "status": "PRIMARY",
+        "rolloutState": "COMPLETED",
+        "taskDefinition": "arn:aws:ecs:eu-west-1:447558491229:task-definition/lab-dom12-sandbox-app:2",
+        "desiredCount": 2,
+        "runningCount": 2,
+        "failedTasks": 0,
+        "createdAt": "2026-10-29T06:16:50.302000+00:00",
+        "updatedAt": "2026-10-29T06:22:07.896000+00:00"
+      }
+    ],
+    "alarmRollback": {
+      "alarmNames": [
+        "lab-dom12-sandbox-high-error-rate"
+      ],
+      "rollback": true,
+      "enable": true
+    },
+    "circuitBreaker": {
+      "enable": true,
+      "rollback": true,
+      "resetOnHealthyTask": true,
+      "thresholdConfiguration": {
+        "type": "BOUNDED_PERCENT",
+        "value": 50
+      }
+    },
+    "recentEvents": [
+      {
+        "createdAt": "2026-10-29T06:22:07.902000+00:00",
+        "message": "(service lab-dom12-sandbox-app) has reached a steady state."
+      },
+      {
+        "createdAt": "2026-10-29T06:22:07.901000+00:00",
+        "message": "(service lab-dom12-sandbox-app) (deployment ecs-svc/2026225876674644754) deployment completed."
+      },
+      {
+        "createdAt": "2026-10-29T06:17:36.249000+00:00",
+        "message": "(service lab-dom12-sandbox-app) stopped 1 pending tasks."
+      },
+      {
+        "createdAt": "2026-10-29T06:17:24.867000+00:00",
+        "message": "(service lab-dom12-sandbox-app) registered 2 targets in (target-group arn:aws:elasticloadbalancing:eu-west-1:447558491229:targetgroup/lab-dom12-sandbox-alb-tg/84dce7059d3b5f4d)"
+      },
+      {
+        "createdAt": "2026-10-29T06:17:05.573000+00:00",
+        "message": "(service lab-dom12-sandbox-app) has started 2 tasks: (task 09750c64551e412cade8fd764fc60653) (task c5d510e7b1cc4cc5a2f1085933cd0326)."
+      },
+      {
+        "createdAt": "2026-10-29T06:16:56.021000+00:00",
+        "message": "(service lab-dom12-sandbox-app) has started 2 tasks: (task 3b2fb9f97aef4113830362960ef864f4) (task aecd9d4cf6874361b66d1113e3ad85bf)."
+      },
+      {
+        "createdAt": "2026-10-29T04:47:32.163000+00:00",
+        "message": "(service lab-dom12-sandbox-app) has reached a steady state."
+      },
+      {
+        "createdAt": "2026-10-29T04:47:32.162000+00:00",
+        "message": "(service lab-dom12-sandbox-app) (deployment ecs-svc/3599753561371755829) deployment completed."
+      }
+    ]
+  },
+  "taskDefinition": {
+    "family": "lab-dom12-sandbox-app",
+    "revision": 2,
+    "image": "447558491229.dkr.ecr.eu-west-1.amazonaws.com/lab-dom12/server-details@sha256:b2c284c5539c79e956482406fe8a6bf7262153fb6fa086040a54c1948c3c2fdc",
+    "registeredAt": "2026-10-29T06:16:49.062000+00:00"
+  },
+  "tasks": [
+    {
+      "taskArn": "arn:aws:ecs:eu-west-1:447558491229:task/lab-dom12-sandbox-cluster/09750c64551e412cade8fd764fc60653",
+      "taskDefinitionArn": "arn:aws:ecs:eu-west-1:447558491229:task-definition/lab-dom12-sandbox-app:2",
+      "lastStatus": "RUNNING",
+      "healthStatus": "HEALTHY",
+      "availabilityZone": "eu-west-1a",
+      "startedAt": "2026-10-29T06:17:29.341000+00:00"
+    },
+    {
+      "taskArn": "arn:aws:ecs:eu-west-1:447558491229:task/lab-dom12-sandbox-cluster/c5d510e7b1cc4cc5a2f1085933cd0326",
+      "taskDefinitionArn": "arn:aws:ecs:eu-west-1:447558491229:task-definition/lab-dom12-sandbox-app:2",
+      "lastStatus": "RUNNING",
+      "healthStatus": "HEALTHY",
+      "availabilityZone": "eu-west-1b",
+      "startedAt": "2026-10-29T06:17:28.581000+00:00"
+    }
+  ],
+  "targetHealth": [
+    {
+      "id": "10.12.11.233",
+      "port": 3000,
+      "state": "healthy"
+    },
+    {
+      "id": "10.12.10.180",
+      "port": 3000,
+      "state": "healthy"
+    }
+  ],
+  "alarms": [
+    {
+      "name": "lab-dom12-sandbox-app-5xx-logged",
+      "state": "OK",
+      "updatedAt": "2026-10-29T04:47:30.766000+00:00"
+    },
+    {
+      "name": "lab-dom12-sandbox-app-target-down",
+      "state": "OK",
+      "updatedAt": "2026-10-29T06:20:47.462000+00:00"
+    },
+    {
+      "name": "lab-dom12-sandbox-cpu-high",
+      "state": "OK",
+      "updatedAt": "2026-10-29T04:45:36.658000+00:00"
+    },
+    {
+      "name": "lab-dom12-sandbox-high-error-rate",
+      "state": "OK",
+      "updatedAt": "2026-10-29T04:47:36.852000+00:00"
+    },
+    {
+      "name": "lab-dom12-sandbox-memory-high",
+      "state": "OK",
+      "updatedAt": "2026-10-29T04:45:16.716000+00:00"
+    }
+  ]
+}

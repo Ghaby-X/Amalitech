@@ -1,0 +1,35 @@
+
+For OSS Maintainers: VEX Notice
+--------------------------------
+If you're an OSS maintainer and Trivy has detected vulnerabilities in your project that you believe are not actually exploitable, consider issuing a VEX (Vulnerability Exploitability eXchange) statement.
+VEX allows you to communicate the actual status of vulnerabilities in your project, improving security transparency and reducing false positives for your users.
+Learn more and start using VEX: https://trivy.dev/docs/v0.76/guide/supply-chain/vex/repo#publishing-vex-documents
+
+To disable this notice, set the TRIVY_DISABLE_VEX_NOTICE environment variable.
+
+
+Node.js (node-pkg)
+==================
+Total: 5 (UNKNOWN: 0, LOW: 0, MEDIUM: 3, HIGH: 2, CRITICAL: 0)
+
+┌───────────────────────┬────────────────┬──────────┬────────┬───────────────────┬───────────────┬──────────────────────────────────────────────────────────────┐
+│        Library        │ Vulnerability  │ Severity │ Status │ Installed Version │ Fixed Version │                            Title                             │
+├───────────────────────┼────────────────┼──────────┼────────┼───────────────────┼───────────────┼──────────────────────────────────────────────────────────────┤
+│ lodash (package.json) │ CVE-2021-23337 │ HIGH     │ fixed  │ 4.17.20           │ 4.17.21       │ nodejs-lodash: command injection via template                │
+│                       │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2021-23337                   │
+│                       ├────────────────┤          │        │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│                       │ CVE-2026-4800  │          │        │                   │ 4.18.0        │ lodash: lodash: Arbitrary code execution via untrusted input │
+│                       │                │          │        │                   │               │ in template imports                                          │
+│                       │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2026-4800                    │
+│                       ├────────────────┼──────────┤        │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│                       │ CVE-2020-28500 │ MEDIUM   │        │                   │ 4.17.21       │ nodejs-lodash: ReDoS via the toNumber, trim and trimEnd      │
+│                       │                │          │        │                   │               │ functions                                                    │
+│                       │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2020-28500                   │
+│                       ├────────────────┤          │        │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│                       │ CVE-2025-13465 │          │        │                   │ 4.17.23       │ lodash: prototype pollution in _.unset and _.omit functions  │
+│                       │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2025-13465                   │
+│                       ├────────────────┤          │        │                   ├───────────────┼──────────────────────────────────────────────────────────────┤
+│                       │ CVE-2026-2950  │          │        │                   │ 4.18.0        │ lodash: Lodash: Prototype pollution allows deletion of       │
+│                       │                │          │        │                   │               │ built-in prototype properties via array...                   │
+│                       │                │          │        │                   │               │ https://avd.aquasec.com/nvd/cve-2026-2950                    │
+└───────────────────────┴────────────────┴──────────┴────────┴───────────────────┴───────────────┴──────────────────────────────────────────────────────────────┘
