@@ -1,0 +1,20 @@
+{
+    "status": "COMPLETE",
+    "summary": {
+        "expiringImageTotalCount": 1
+    },
+    "previewResults": [
+        {
+            "imageTags": [
+                "654c3ce-3-1"
+            ],
+            "imageDigest": "sha256:b2c284c5539c79e956482406fe8a6bf7262153fb6fa086040a54c1948c3c2fdc",
+            "imagePushedAt": "2026-10-29T08:16:47.882000+02:00",
+            "action": {
+                "type": "EXPIRE"
+            },
+            "appliedRulePriority": 2,
+            "storageClass": "STANDARD"
+        }
+    ]
+}

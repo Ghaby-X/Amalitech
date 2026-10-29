@@ -1,0 +1,22 @@
+# after — 2026-10-29T13:44:26Z
+## ECS service
+{
+    "taskDefinition": "arn:aws:ecs:eu-west-1:447558491229:task-definition/lab-dom12-sandbox-app:3",
+    "running": 2
+}
+## ACTIVE task definition revisions
+[
+    "arn:aws:ecs:eu-west-1:447558491229:task-definition/lab-dom12-sandbox-app:3"
+]
+## INACTIVE task definition revisions
+[]
+## ECR images
+[
+    {
+        "tags": [
+            "1b5bd3a-6-1"
+        ],
+        "digest": "sha256:af2a6f0bf3940766675b5670d5d119395887c0edeb68c13ad86ed78dd754f088",
+        "pushedAt": "2026-10-29T10:20:37.045000+02:00"
+    }
+]

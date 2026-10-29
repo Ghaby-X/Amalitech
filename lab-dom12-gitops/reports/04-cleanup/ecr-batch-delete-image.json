@@ -1,0 +1,9 @@
+{
+    "imageIds": [
+        {
+            "imageDigest": "sha256:b2c284c5539c79e956482406fe8a6bf7262153fb6fa086040a54c1948c3c2fdc",
+            "imageTag": "654c3ce-3-1"
+        }
+    ],
+    "failures": []
+}

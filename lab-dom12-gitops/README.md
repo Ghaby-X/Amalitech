@@ -100,7 +100,10 @@ run still leaves evidence behind.
     keeps the newest 5 revisions (plus any in use).
   - **Images:** the ECR lifecycle policy keeps the 10 most recent images and
     expires untagged ones after 1 day.
-  - The demo only reached revision `:3`, so the cleanup removed nothing.
+  - After `:3` was validated, a cleanup run kept only what's in use. It
+    deleted revisions `:1` and `:2` with keep=1. A lifecycle policy preview
+    with keep=1 marked `654c3ce-3-1` to expire, and that image was then
+    deleted. Evidence: [`reports/04-cleanup`](reports/04-cleanup).
 
 ## Demo: blocking a vulnerable dependency
 
@@ -110,6 +113,7 @@ run still leaves evidence behind.
 | 2 | [40830058729](https://github.com/Ghaby-X/Amalitech/actions/runs/40830058729) (PR #12) | Add `lodash@4.17.20` | **Blocked.** Snyk: 2 High + 3 Medium (incl. CVE-2021-23337). Trivy: 2 HIGH + 3 MEDIUM. Deploy skipped | [`reports/02-blocked-vuln-dep`](reports/02-blocked-vuln-dep) |
 | 3 | [40836623742](https://github.com/Ghaby-X/Amalitech/actions/runs/40836623742) (PR #12) | Upgrade to `lodash@4.18.1` | All gates pass. The 10 code scanning alerts close | screenshots below |
 | 4 | [40841267516](https://github.com/Ghaby-X/Amalitech/actions/runs/40841267516) (PR #12 merged) | Fixed code on `main` | Rolling update `:2` → `:3` `COMPLETED` in about 5 minutes, 2/2 targets healthy, all 5 alarms `OK` | [`reports/03-fixed-deploy`](reports/03-fixed-deploy) |
+| 5 | Manual, after validation | Clean up old revisions and images | Revisions `:1` and `:2` deleted, image `654c3ce-3-1` deleted. Service still on `:3`, app returns 200 | [`reports/04-cleanup`](reports/04-cleanup) |
 
 `4.17.21` is not enough as a fix: it still has CVE-2026-4800, which was fixed
 in `4.18.0`. The dependency is pinned to an exact version.

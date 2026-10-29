@@ -1,0 +1,5 @@
+3 active revisions of lab-dom12-sandbox-app, keeping the newest 1
+deregistered   arn:aws:ecs:eu-west-1:447558491229:task-definition/lab-dom12-sandbox-app:2
+deregistered   arn:aws:ecs:eu-west-1:447558491229:task-definition/lab-dom12-sandbox-app:1
+deleted        arn:aws:ecs:eu-west-1:447558491229:task-definition/lab-dom12-sandbox-app:2
+deleted        arn:aws:ecs:eu-west-1:447558491229:task-definition/lab-dom12-sandbox-app:1
