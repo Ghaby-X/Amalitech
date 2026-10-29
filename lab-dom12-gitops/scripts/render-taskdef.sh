@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# The template's ${VAR} placeholders are literal text here, not expansions.
+# shellcheck disable=SC2016
+
 # Renders ecs/taskdef.template.json into a task definition ready for
 # `aws ecs register-task-definition --cli-input-json file://<output>`.
 #

@@ -1,0 +1,535 @@
+# Secure CI/CD for lab-dom12: every change to the app runs the security gates
+# below in parallel, and a push to main that passes all of them is deployed
+# to ECS (sandbox) with a rolling update.
+#
+#   test ─────┐
+#   secrets ──┤
+#   sast ─────┼──> deploy (main only)
+#   sca ──────┤
+#   image ────┘
+#
+# Each gate archives its reports and fails the run on any Critical/High
+# finding or detected secret, which blocks the deploy.
+
+name: lab-dom12 secure pipeline
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - lab-dom12-gitops/app/**
+      - lab-dom12-gitops/ecs/taskdef.template.json
+      - lab-dom12-gitops/scripts/**
+      - .github/workflows/lab-dom12-secure-pipeline.yml
+  pull_request:
+    paths:
+      - lab-dom12-gitops/app/**
+      - lab-dom12-gitops/ecs/taskdef.template.json
+      - lab-dom12-gitops/scripts/**
+      - .github/workflows/lab-dom12-secure-pipeline.yml
+  workflow_dispatch:
+
+# Every job declares exactly what it needs.
+permissions: {}
+
+concurrency:
+  group: lab-dom12-${{ github.ref }}
+  # Superseded PR runs can be cancelled; a deploy in progress never is.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+defaults:
+  run:
+    shell: bash
+    working-directory: lab-dom12-gitops
+
+env:
+  APP_DIR: app
+  REPORTS_DIR: reports
+  LOCAL_IMAGE: lab-dom12/server-details:${{ github.sha }}
+  # Scanner versions, with SHA-256 hashes pinned here rather than read from
+  # the release itself. Bump deliberately.
+  GITLEAKS_VERSION: 8.30.1
+  GITLEAKS_SHA256: 551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb
+  TRIVY_VERSION: 0.76.1
+  TRIVY_SHA256: c7cbe3137fb8a48a17574bede3dd6beb16742d1e9772929940fc90082c39d9c0
+  SYFT_VERSION: 1.55.0
+  SYFT_SHA256: bb65249542db5fedeeb4d3f9b018b75e7264dbfbbb10486f044581a92f90490d
+  DEPENDENCY_CHECK_VERSION: 13.0.0
+  DEPENDENCY_CHECK_SHA256: 44d920d1ec03e948df862a253f0912782a31b9beee8a7c8895b9cb95760176ed
+
+jobs:
+  test:
+    name: Unit tests
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: lab-dom12-gitops/app/package-lock.json
+
+      - name: Install and test
+        working-directory: lab-dom12-gitops/app
+        run: |
+          npm ci --ignore-scripts
+          npm test
+
+  secrets:
+    name: Secret scan (Gitleaks)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Install Gitleaks
+        run: |
+          scripts/install-tool.sh \
+            "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" \
+            "$GITLEAKS_SHA256" "$RUNNER_TEMP/gitleaks"
+          echo "$RUNNER_TEMP/gitleaks" >> "$GITHUB_PATH"
+
+      # Scans every commit this push or PR introduces, not just the final
+      # tree: a secret added in one commit and deleted in the next is still
+      # in history, so it still fails. Limited to this lab's paths.
+      - name: Scan commits
+        id: scan
+        env:
+          EVENT: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+        run: |
+          case "$EVENT" in
+            pull_request) range="$PR_BASE..$PR_HEAD" ;;
+            push)
+              if [[ "$PUSH_BEFORE" =~ ^0+$ ]]; then range="$GITHUB_SHA~1..$GITHUB_SHA"
+              else range="$PUSH_BEFORE..$GITHUB_SHA"; fi ;;
+            *) range="$GITHUB_SHA" ;;  # manual run: full history of these paths
+          esac
+          echo "Scanning $range"
+          mkdir -p "$REPORTS_DIR/gitleaks"
+          cd "$GITHUB_WORKSPACE"
+          gitleaks git . \
+            --log-opts="$range -- lab-dom12-gitops .github/workflows/lab-dom12-secure-pipeline.yml" \
+            --redact --no-banner \
+            --report-format sarif \
+            --report-path "lab-dom12-gitops/$REPORTS_DIR/gitleaks/gitleaks.sarif"
+
+      - name: Gate summary
+        if: ${{ !cancelled() }}
+        env:
+          OUTCOME: ${{ steps.scan.outcome }}
+        run: |
+          leaks=$(jq '[.runs[].results[]] | length' "$REPORTS_DIR/gitleaks/gitleaks.sarif" 2>/dev/null || echo "?")
+          if [[ "$OUTCOME" == success ]]; then status="✅ pass"; else status="❌ fail"; fi
+          echo "### Secret scan (Gitleaks): $status - $leaks secret(s) found" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload to code scanning
+        if: ${{ !cancelled() && hashFiles('lab-dom12-gitops/reports/gitleaks/gitleaks.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          sarif_file: lab-dom12-gitops/reports/gitleaks/gitleaks.sarif
+          category: lab-dom12-gitleaks
+
+      - name: Archive report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: report-gitleaks
+          path: lab-dom12-gitops/reports/gitleaks/
+          if-no-files-found: warn
+
+  sast:
+    name: SAST (CodeQL)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: github/codeql-action/init@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          languages: javascript-typescript
+          build-mode: none
+          source-root: lab-dom12-gitops/app
+          queries: security-extended
+
+      - uses: github/codeql-action/analyze@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          category: lab-dom12-codeql
+          output: lab-dom12-gitops/reports/codeql
+
+      # CodeQL itself never fails the build on findings. Gate on GitHub's own
+      # severity bands: security-severity >= 7.0 is High, >= 9.0 Critical.
+      - name: Gate on High/Critical
+        run: |
+          blocking=$(jq -s '
+            [ .[].runs[]
+              | ([.tool.driver.rules[]?] + [.tool.extensions[]?.rules[]?]) as $rules
+              | .results[]
+              | .ruleId as $id
+              | (first($rules[] | select(.id == $id)) | .properties["security-severity"] // "0" | tonumber)
+              | select(. >= 7)
+            ] | length' "$REPORTS_DIR"/codeql/*.sarif)
+          total=$(jq -s '[.[].runs[].results[]] | length' "$REPORTS_DIR"/codeql/*.sarif)
+          if (( blocking > 0 )); then status="❌ fail"; else status="✅ pass"; fi
+          echo "### SAST (CodeQL): $status - $blocking High/Critical of $total finding(s)" >> "$GITHUB_STEP_SUMMARY"
+          (( blocking == 0 ))
+
+      - name: Archive report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: report-codeql
+          path: lab-dom12-gitops/reports/codeql/
+          if-no-files-found: warn
+
+  sca:
+    name: SCA (OWASP Dependency-Check)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      security-events: write
+    env:
+      DC_DATA: ${{ github.workspace }}/.dependency-check-data
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Dependency-Check
+        run: |
+          scripts/install-tool.sh \
+            "https://github.com/dependency-check/DependencyCheck/releases/download/v${DEPENDENCY_CHECK_VERSION}/dependency-check-${DEPENDENCY_CHECK_VERSION}-release.zip" \
+            "$DEPENDENCY_CHECK_SHA256" "$RUNNER_TEMP"
+          echo "$RUNNER_TEMP/dependency-check/bin" >> "$GITHUB_PATH"
+
+      # The NVD database is the slow part. Restore yesterday's copy, top it
+      # up, and save it before scanning - so it's cached even when the scan
+      # then fails the gate.
+      - name: Cache key
+        id: cache-key
+        run: echo "key=dependency-check-data-$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore NVD data
+        id: restore
+        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .dependency-check-data
+          key: ${{ steps.cache-key.outputs.key }}
+          restore-keys: dependency-check-data-
+
+      - name: Update NVD data
+        env:
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
+        run: dependency-check.sh --updateonly --data "$DC_DATA" --nvdApiKey "$NVD_API_KEY"
+
+      - name: Save NVD data
+        if: steps.restore.outputs.cache-matched-key != steps.cache-key.outputs.key
+        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: .dependency-check-data
+          key: ${{ steps.cache-key.outputs.key }}
+
+      # OSS Index now needs a Sonatype account, so it's off; the NVD, the
+      # npm audit API and RetireJS cover a Node app.
+      - name: Scan dependencies
+        id: scan
+        run: |
+          dependency-check.sh \
+            --project lab-dom12-server-details \
+            --scan "$APP_DIR" \
+            --exclude "**/node_modules/**" \
+            --data "$DC_DATA" --noupdate \
+            --disableOssIndex \
+            --format HTML --format JSON --format SARIF \
+            --prettyPrint \
+            --out "$REPORTS_DIR/dependency-check" \
+            --failOnCVSS 7
+
+      - name: Gate summary
+        if: ${{ !cancelled() }}
+        env:
+          OUTCOME: ${{ steps.scan.outcome }}
+        run: |
+          report="$REPORTS_DIR/dependency-check/dependency-check-report.json"
+          vulns=$(jq '[.dependencies[].vulnerabilities[]?] | length' "$report" 2>/dev/null || echo "?")
+          if [[ "$OUTCOME" == success ]]; then status="✅ pass"; else status="❌ fail"; fi
+          echo "### SCA (Dependency-Check): $status - $vulns vulnerabilit(y/ies), gate at CVSS >= 7" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload to code scanning
+        if: ${{ !cancelled() && hashFiles('lab-dom12-gitops/reports/dependency-check/dependency-check-report.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          sarif_file: lab-dom12-gitops/reports/dependency-check/dependency-check-report.sarif
+          category: lab-dom12-dependency-check
+
+      - name: Archive report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: report-dependency-check
+          path: lab-dom12-gitops/reports/dependency-check/
+          if-no-files-found: warn
+
+  image:
+    name: Build, image scan (Trivy) and SBOM (Syft)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      security-events: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install Trivy and Syft
+        run: |
+          scripts/install-tool.sh \
+            "https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz" \
+            "$TRIVY_SHA256" "$RUNNER_TEMP/trivy"
+          scripts/install-tool.sh \
+            "https://github.com/anchore/syft/releases/download/v${SYFT_VERSION}/syft_${SYFT_VERSION}_linux_amd64.tar.gz" \
+            "$SYFT_SHA256" "$RUNNER_TEMP/syft"
+          echo "$RUNNER_TEMP/trivy" >> "$GITHUB_PATH"
+          echo "$RUNNER_TEMP/syft" >> "$GITHUB_PATH"
+
+      - name: Build image
+        run: |
+          docker build \
+            --label "org.opencontainers.image.revision=$GITHUB_SHA" \
+            --label "org.opencontainers.image.source=$GITHUB_SERVER_URL/$GITHUB_REPOSITORY" \
+            --tag "$LOCAL_IMAGE" \
+            "$APP_DIR"
+
+      - name: Scan image
+        run: |
+          mkdir -p "$REPORTS_DIR/trivy"
+          trivy image --scanners vuln,secret --format json \
+            --output "$REPORTS_DIR/trivy/trivy-image.json" "$LOCAL_IMAGE"
+          trivy convert --format sarif --output "$REPORTS_DIR/trivy/trivy-image.sarif" "$REPORTS_DIR/trivy/trivy-image.json"
+          trivy convert --format table --output "$REPORTS_DIR/trivy/trivy-image.txt" "$REPORTS_DIR/trivy/trivy-image.json"
+          cat "$REPORTS_DIR/trivy/trivy-image.txt"
+
+      # Generated before the gate so the SBOM is archived even for an image
+      # that gets blocked.
+      - name: Generate SBOM
+        run: |
+          mkdir -p "$REPORTS_DIR/sbom"
+          syft scan "docker:$LOCAL_IMAGE" --output "cyclonedx-json=$REPORTS_DIR/sbom/sbom.cdx.json"
+          echo "SBOM components: $(jq '.components | length' "$REPORTS_DIR/sbom/sbom.cdx.json")"
+
+      - name: Gate on High/Critical and secrets
+        run: |
+          report="$REPORTS_DIR/trivy/trivy-image.json"
+          vulns=$(jq '[.Results[]?.Vulnerabilities[]? | select(.Severity == "HIGH" or .Severity == "CRITICAL")] | length' "$report")
+          secrets=$(jq '[.Results[]?.Secrets[]?] | length' "$report")
+          components=$(jq '.components | length' "$REPORTS_DIR/sbom/sbom.cdx.json")
+          if (( vulns + secrets > 0 )); then status="❌ fail"; else status="✅ pass"; fi
+          {
+            echo "### Image scan (Trivy): $status - $vulns High/Critical vulnerabilit(y/ies), $secrets secret(s)"
+            echo "### SBOM (Syft): CycloneDX, $components components"
+          } >> "$GITHUB_STEP_SUMMARY"
+          (( vulns + secrets == 0 ))
+
+      - name: Upload to code scanning
+        if: ${{ !cancelled() && hashFiles('lab-dom12-gitops/reports/trivy/trivy-image.sarif') != '' }}
+        uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
+        with:
+          sarif_file: lab-dom12-gitops/reports/trivy/trivy-image.sarif
+          category: lab-dom12-trivy-image
+
+      - name: Archive reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: report-trivy-sbom
+          path: |
+            lab-dom12-gitops/reports/trivy/
+            lab-dom12-gitops/reports/sbom/
+          if-no-files-found: warn
+
+      # Hand the exact image that was scanned to the deploy job, rather than
+      # rebuilding it there.
+      - name: Export image
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        run: docker save "$LOCAL_IMAGE" | gzip > "$RUNNER_TEMP/image.tar.gz"
+
+      - name: Upload image
+        if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: image
+          path: ${{ runner.temp }}/image.tar.gz
+          retention-days: 1
+
+  deploy:
+    name: Deploy to ECS (sandbox)
+    needs: [test, secrets, sast, sca, image]
+    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      id-token: write
+    # The deploy role only trusts this repo's sandbox environment, and the
+    # environment only allows main.
+    environment:
+      name: sandbox
+      url: ${{ vars.APP_URL }}
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ROLE_ARN: ${{ vars.AWS_ROLE_ARN }}
+      ECR_REPOSITORY_URL: ${{ vars.ECR_REPOSITORY_URL }}
+      ECS_CLUSTER: ${{ vars.ECS_CLUSTER }}
+      ECS_SERVICE: ${{ vars.ECS_SERVICE }}
+      TASK_FAMILY: ${{ vars.TASK_FAMILY }}
+      CONTAINER_NAME: ${{ vars.CONTAINER_NAME }}
+      CONTAINER_PORT: ${{ vars.CONTAINER_PORT }}
+      EXECUTION_ROLE_ARN: ${{ vars.EXECUTION_ROLE_ARN }}
+      TASK_ROLE_ARN: ${{ vars.TASK_ROLE_ARN }}
+      LOG_GROUP: ${{ vars.LOG_GROUP }}
+      TASK_CPU: ${{ vars.TASK_CPU }}
+      TASK_MEMORY: ${{ vars.TASK_MEMORY }}
+      HEALTH_CHECK_PATH: ${{ vars.HEALTH_CHECK_PATH }}
+      APP_URL: ${{ vars.APP_URL }}
+      ALARM_PREFIX: ${{ vars.ALARM_PREFIX }}
+      # Two tasks, so a rolling deploy visibly replaces one revision with the
+      # next. Terraform ignores desired_count; this is the source of truth.
+      DESIRED_COUNT: 2
+      KEEP_REVISIONS: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check environment configuration
+        run: |
+          missing=()
+          for v in AWS_REGION AWS_ROLE_ARN ECR_REPOSITORY_URL ECS_CLUSTER ECS_SERVICE ALARM_PREFIX APP_URL; do
+            [[ -n "${!v}" ]] || missing+=("$v")
+          done
+          if (( ${#missing[@]} )); then
+            echo "::error::sandbox environment variables not set: ${missing[*]} - run scripts/sync-github-env.sh"
+            exit 1
+          fi
+          # Versioned tag: commit + run, plus the attempt so a re-run never
+          # collides with an immutable tag pushed by the first attempt.
+          echo "IMAGE_TAG=${GITHUB_SHA::7}-${GITHUB_RUN_NUMBER}-${GITHUB_RUN_ATTEMPT}" >> "$GITHUB_ENV"
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: image
+          path: ${{ runner.temp }}
+
+      - name: Load scanned image
+        run: gunzip -c "$RUNNER_TEMP/image.tar.gz" | docker load
+
+      - uses: aws-actions/configure-aws-credentials@e1253824e5c10ff9df46874f81ed3ec929e19cfd # v6.3.0
+        with:
+          role-to-assume: ${{ vars.AWS_ROLE_ARN }}
+          role-session-name: lab-dom12-deploy-${{ github.run_id }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Push to ECR
+        id: push
+        run: |
+          aws ecr get-login-password | docker login --username AWS --password-stdin "${ECR_REPOSITORY_URL%%/*}"
+          docker tag "$LOCAL_IMAGE" "$ECR_REPOSITORY_URL:$IMAGE_TAG"
+          docker push "$ECR_REPOSITORY_URL:$IMAGE_TAG"
+          # Deploy by digest, so ECS runs exactly the bytes that were scanned.
+          image_ref=$(docker inspect --format '{{range .RepoDigests}}{{println .}}{{end}}' "$ECR_REPOSITORY_URL:$IMAGE_TAG" \
+            | grep "^$ECR_REPOSITORY_URL@sha256:")
+          echo "image_ref=$image_ref" >> "$GITHUB_OUTPUT"
+          echo "Pushed $ECR_REPOSITORY_URL:$IMAGE_TAG ($image_ref)"
+
+      - name: Render task definition
+        env:
+          IMAGE_REF: ${{ steps.push.outputs.image_ref }}
+        run: scripts/render-taskdef.sh "$IMAGE_REF" "ecs/rendered/taskdef-$IMAGE_TAG.json"
+
+      - name: Register task definition
+        id: register
+        run: |
+          arn=$(aws ecs register-task-definition \
+            --cli-input-json "file://ecs/rendered/taskdef-$IMAGE_TAG.json" \
+            --query 'taskDefinition.taskDefinitionArn' --output text)
+          echo "arn=$arn" >> "$GITHUB_OUTPUT"
+          echo "Registered $arn"
+
+      - name: Update service (rolling deploy)
+        env:
+          TASK_DEFINITION_ARN: ${{ steps.register.outputs.arn }}
+        run: |
+          aws ecs update-service \
+            --cluster "$ECS_CLUSTER" --service "$ECS_SERVICE" \
+            --task-definition "$TASK_DEFINITION_ARN" \
+            --desired-count "$DESIRED_COUNT" \
+            --query 'service.deployments[0].{id:id,taskDefinition:taskDefinition,rolloutState:rolloutState}'
+
+      - name: Wait for deployment
+        id: wait
+        env:
+          TASK_DEFINITION_ARN: ${{ steps.register.outputs.arn }}
+        run: scripts/wait-for-deployment.sh "$ECS_CLUSTER" "$ECS_SERVICE" "$TASK_DEFINITION_ARN" 900
+
+      - name: Smoke test
+        run: |
+          curl --fail --silent --show-error --retry 5 --retry-delay 5 --retry-all-errors \
+            "$APP_URL$HEALTH_CHECK_PATH" | jq '{hostname, nodeVersion, serverTime}'
+
+      - name: Collect deployment evidence
+        if: ${{ !cancelled() && steps.register.outcome == 'success' }}
+        env:
+          TASK_DEFINITION_ARN: ${{ steps.register.outputs.arn }}
+          IMAGE_REF: ${{ steps.push.outputs.image_ref }}
+          WAIT_OUTCOME: ${{ steps.wait.outcome }}
+        run: |
+          evidence="ecs/rendered/deployment-$IMAGE_TAG.json"
+          scripts/collect-deploy-evidence.sh "$ECS_CLUSTER" "$ECS_SERVICE" "$ALARM_PREFIX" > "$evidence"
+          if [[ "$WAIT_OUTCOME" == success ]]; then status="✅ deployed"; else status="❌ failed / rolled back"; fi
+          {
+            echo "### Deploy: $status"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Image | \`$ECR_REPOSITORY_URL:$IMAGE_TAG\` |"
+            echo "| Digest | \`${IMAGE_REF#*@}\` |"
+            echo "| Revision registered | \`${TASK_DEFINITION_ARN##*/}\` |"
+            echo "| Service now running | \`$(jq -r '.service.taskDefinition | split("/") | last' "$evidence")\` |"
+            echo "| Tasks running/desired | $(jq -r '"\(.service.runningCount)/\(.service.desiredCount)"' "$evidence") |"
+            echo "| Healthy targets | $(jq -r '[.targetHealth[] | select(.state == "healthy")] | length' "$evidence") |"
+            echo "| Alarms | $(jq -r --arg p "$ALARM_PREFIX-" '[.alarms[] | "\(.name | ltrimstr($p)): \(.state)"] | join(", ")' "$evidence") |"
+            echo "| App | $APP_URL |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Clean up old task definition revisions
+        run: scripts/cleanup-taskdefs.sh "$ECS_CLUSTER" "$ECS_SERVICE" "$TASK_FAMILY" "$KEEP_REVISIONS"
+
+      - name: Archive rendered task definition and evidence
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: deploy-evidence
+          path: lab-dom12-gitops/ecs/rendered/*.json
+          if-no-files-found: warn
