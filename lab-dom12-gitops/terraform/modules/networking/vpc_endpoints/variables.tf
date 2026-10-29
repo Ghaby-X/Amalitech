@@ -18,6 +18,16 @@ variable "gateway_route_table_ids" {
   type        = list(string)
 }
 
+variable "s3_read_bucket_arns" {
+  description = "Buckets workloads may read objects from through the S3 gateway endpoint. Everything else is denied by the endpoint policy."
+  type        = list(string)
+
+  validation {
+    condition     = length(var.s3_read_bucket_arns) > 0
+    error_message = "List at least one bucket - an empty list would block all S3 access, including ECR image layers."
+  }
+}
+
 variable "interface_services" {
   description = "Service name suffixes (after com.amazonaws.<region>.) to create interface endpoints for."
   type        = list(string)

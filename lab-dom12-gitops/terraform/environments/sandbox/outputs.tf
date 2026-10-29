@@ -59,5 +59,6 @@ output "pipeline_config" {
     TASK_MEMORY        = tostring(var.task_memory)
     HEALTH_CHECK_PATH  = var.health_check_path
     APP_URL            = module.alb.url
+    ALARM_PREFIX       = local.name
   }
 }

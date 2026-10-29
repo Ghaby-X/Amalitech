@@ -48,6 +48,10 @@ module "vpc_endpoints" {
   subnet_ids              = module.vpc.private_subnet_ids
   gateway_route_table_ids = [module.vpc.private_route_table_id]
   security_group_ids      = [module.security_groups.vpc_endpoints_security_group_id]
+
+  # The AWS-owned bucket ECR serves image layers from - the only S3 the
+  # tasks need.
+  s3_read_bucket_arns = ["arn:aws:s3:::prod-${local.region}-starport-layer-bucket"]
 }
 
 module "alb" {
