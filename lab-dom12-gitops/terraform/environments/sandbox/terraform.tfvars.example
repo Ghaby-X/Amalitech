@@ -1,0 +1,7 @@
+# Optional - every variable has a sandbox default. Copy to terraform.tfvars to override.
+
+# Email for alarm + ECS deployment notifications (confirm the SNS subscription from your inbox)
+# alarm_email = "you@example.com"
+
+# Restrict who can reach the app through the ALB (default: anyone)
+# alb_ingress_cidr = "<your-ip>/32"
