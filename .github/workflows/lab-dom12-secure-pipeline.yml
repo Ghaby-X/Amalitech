@@ -54,8 +54,8 @@ env:
   TRIVY_SHA256: c7cbe3137fb8a48a17574bede3dd6beb16742d1e9772929940fc90082c39d9c0
   SYFT_VERSION: 1.55.0
   SYFT_SHA256: bb65249542db5fedeeb4d3f9b018b75e7264dbfbbb10486f044581a92f90490d
-  DEPENDENCY_CHECK_VERSION: 13.0.0
-  DEPENDENCY_CHECK_SHA256: 44d920d1ec03e948df862a253f0912782a31b9beee8a7c8895b9cb95760176ed
+  SNYK_VERSION: 1.1308.3
+  SNYK_SHA256: 5f323f45885341ea1473639859271925912ece82a2f77bc146bb4468f9838840
 
 jobs:
   test:
@@ -203,92 +203,71 @@ jobs:
           if-no-files-found: warn
 
   sca:
-    name: SCA (OWASP Dependency-Check)
+    name: SCA (Snyk)
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 10
     permissions:
       contents: read
       security-events: write
     env:
-      DC_DATA: ${{ github.workspace }}/.dependency-check-data
+      SNYK_DISABLE_ANALYTICS: "1"
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      - name: Install Dependency-Check
+      - name: Install Snyk CLI
         run: |
           scripts/install-tool.sh \
-            "https://github.com/dependency-check/DependencyCheck/releases/download/v${DEPENDENCY_CHECK_VERSION}/dependency-check-${DEPENDENCY_CHECK_VERSION}-release.zip" \
-            "$DEPENDENCY_CHECK_SHA256" "$RUNNER_TEMP"
-          echo "$RUNNER_TEMP/dependency-check/bin" >> "$GITHUB_PATH"
+            "https://github.com/snyk/cli/releases/download/v${SNYK_VERSION}/snyk-linux" \
+            "$SNYK_SHA256" "$RUNNER_TEMP/snyk" snyk
+          echo "$RUNNER_TEMP/snyk" >> "$GITHUB_PATH"
 
-      # The NVD database is the slow part. Restore yesterday's copy, top it
-      # up, and save it before scanning - so it's cached even when the scan
-      # then fails the gate.
-      - name: Cache key
-        id: cache-key
-        run: echo "key=dependency-check-data-$(date -u +%Y-%m-%d)" >> "$GITHUB_OUTPUT"
-
-      - name: Restore NVD data
-        id: restore
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: .dependency-check-data
-          key: ${{ steps.cache-key.outputs.key }}
-          restore-keys: dependency-check-data-
-
-      - name: Update NVD data
-        env:
-          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
-        run: dependency-check.sh --updateonly --data "$DC_DATA" --nvdApiKey "$NVD_API_KEY"
-
-      - name: Save NVD data
-        if: steps.restore.outputs.cache-matched-key != steps.cache-key.outputs.key
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: .dependency-check-data
-          key: ${{ steps.cache-key.outputs.key }}
-
-      # OSS Index now needs a Sonatype account, so it's off; the NVD, the
-      # npm audit API and RetireJS cover a Node app.
+      # Snyk resolves the dependency tree from package-lock.json and checks
+      # it against its hosted vulnerability database - nothing to download.
+      # The full report is kept (every severity); the gate below decides.
       - name: Scan dependencies
-        id: scan
-        run: |
-          dependency-check.sh \
-            --project lab-dom12-server-details \
-            --scan "$APP_DIR" \
-            --exclude "**/node_modules/**" \
-            --data "$DC_DATA" --noupdate \
-            --disableOssIndex \
-            --format HTML --format JSON --format SARIF \
-            --prettyPrint \
-            --out "$REPORTS_DIR/dependency-check" \
-            --failOnCVSS 7
-
-      - name: Gate summary
-        if: ${{ !cancelled() }}
         env:
-          OUTCOME: ${{ steps.scan.outcome }}
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
         run: |
-          report="$REPORTS_DIR/dependency-check/dependency-check-report.json"
-          vulns=$(jq '[.dependencies[].vulnerabilities[]?] | length' "$report" 2>/dev/null || echo "?")
-          if [[ "$OUTCOME" == success ]]; then status="✅ pass"; else status="❌ fail"; fi
-          echo "### SCA (Dependency-Check): $status - $vulns vulnerabilit(y/ies), gate at CVSS >= 7" >> "$GITHUB_STEP_SUMMARY"
+          mkdir -p "$REPORTS_DIR/snyk"
+          rc=0
+          snyk test "$APP_DIR" \
+            --file=package-lock.json \
+            --json-file-output="$REPORTS_DIR/snyk/snyk.json" \
+            --sarif-file-output="$REPORTS_DIR/snyk/snyk.sarif" || rc=$?
+          # 0 = clean, 1 = vulnerabilities found (gated below), anything
+          # else = Snyk itself failed (auth, network, unsupported project).
+          if (( rc > 1 )); then
+            echo "::error::snyk test failed with exit code $rc"
+            exit "$rc"
+          fi
+
+      - name: Gate on High/Critical
+        id: gate
+        run: |
+          report="$REPORTS_DIR/snyk/snyk.json"
+          blocking=$(jq '[.vulnerabilities[]? | select(.severity == "high" or .severity == "critical") | .id] | unique | length' "$report")
+          total=$(jq '[.vulnerabilities[]?.id] | unique | length' "$report")
+          deps=$(jq '.dependencyCount // 0' "$report")
+          if (( blocking > 0 )); then status="❌ fail"; else status="✅ pass"; fi
+          echo "### SCA (Snyk): $status - $blocking High/Critical of $total vulnerabilit(y/ies) across $deps dependencies" >> "$GITHUB_STEP_SUMMARY"
+          jq -r '.vulnerabilities[]? | "\(.severity | ascii_upcase)\t\(.packageName)@\(.version)\t\(.id)\t\(.title)"' "$report" | sort -u
+          (( blocking == 0 ))
 
       - name: Upload to code scanning
-        if: ${{ !cancelled() && hashFiles('lab-dom12-gitops/reports/dependency-check/dependency-check-report.sarif') != '' }}
+        if: ${{ !cancelled() && hashFiles('lab-dom12-gitops/reports/snyk/snyk.sarif') != '' }}
         uses: github/codeql-action/upload-sarif@9b3254085494b55a0f7c4c2b3d2d52cc712ce370 # v4.39.1
         with:
-          sarif_file: lab-dom12-gitops/reports/dependency-check/dependency-check-report.sarif
-          category: lab-dom12-dependency-check
+          sarif_file: lab-dom12-gitops/reports/snyk/snyk.sarif
+          category: lab-dom12-snyk
 
       - name: Archive report
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: report-dependency-check
-          path: lab-dom12-gitops/reports/dependency-check/
+          name: report-snyk
+          path: lab-dom12-gitops/reports/snyk/
           if-no-files-found: warn
 
   image:
