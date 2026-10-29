@@ -1,0 +1,24 @@
+{
+  "$schema": "https://docs.oasis-open.org/sarif/sarif/v2.1.0/errata01/os/schemas/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Snyk Open Source",
+          "semanticVersion": "1.1308.3",
+          "version": "1.1308.3",
+          "informationUri": "https://docs.snyk.io/",
+          "properties": {
+            "artifactsScanned": 1
+          },
+          "rules": []
+        }
+      },
+      "automationDetails": {
+        "id": "Snyk/Open Source/lab-dom12-server-details/0/2026-10-29T08:19:22.237Z"
+      },
+      "results": []
+    }
+  ]
+}

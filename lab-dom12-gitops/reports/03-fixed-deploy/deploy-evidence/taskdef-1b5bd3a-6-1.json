@@ -1,0 +1,60 @@
+{
+  "family": "lab-dom12-sandbox-app",
+  "requiresCompatibilities": [
+    "FARGATE"
+  ],
+  "networkMode": "awsvpc",
+  "cpu": "256",
+  "memory": "512",
+  "executionRoleArn": "arn:aws:iam::447558491229:role/lab-dom12-sandbox-app-execution-role",
+  "taskRoleArn": "arn:aws:iam::447558491229:role/lab-dom12-sandbox-app-task-role",
+  "runtimePlatform": {
+    "operatingSystemFamily": "LINUX",
+    "cpuArchitecture": "X86_64"
+  },
+  "containerDefinitions": [
+    {
+      "name": "server-details",
+      "image": "447558491229.dkr.ecr.eu-west-1.amazonaws.com/lab-dom12/server-details@sha256:af2a6f0bf3940766675b5670d5d119395887c0edeb68c13ad86ed78dd754f088",
+      "essential": true,
+      "readonlyRootFilesystem": true,
+      "linuxParameters": {
+        "initProcessEnabled": true
+      },
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "protocol": "tcp"
+        }
+      ],
+      "environment": [
+        {
+          "name": "PORT",
+          "value": "3000"
+        },
+        {
+          "name": "NODE_ENV",
+          "value": "production"
+        }
+      ],
+      "healthCheck": {
+        "command": [
+          "CMD-SHELL",
+          "wget --no-verbose --tries=1 --spider http://127.0.0.1:3000/api/server-info || exit 1"
+        ],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 10
+      },
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/lab-dom12/sandbox/app",
+          "awslogs-region": "eu-west-1",
+          "awslogs-stream-prefix": "server-details"
+        }
+      }
+    }
+  ]
+}
